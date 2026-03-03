@@ -1,7 +1,28 @@
 [
   {
-    "id": "2f5ba92c-678f-4912-a9d2-7552f1f96ff4",
-    "username": "lin",
-    "password": "350de0e63b419b74156231eb6e1b567d:6f08caaff61fada8dca430aca74de7257a5e7ba2ca99084a4954b9b1303b682a2990363d873eab17d7aa51b6d10d6d1b55a85559b934d9fa1fa1b179551db05a"
+    "id": "e4620926-39f8-4822-b143-c6ce469d6638",
+    "username": "ThibaudVB",
+    "password": "e97a24c9d495be206f773139f1fa29cb:96117d9506d868601bb44c0be6c35749b855fc8c4bfe4acc8fd51fcdda83ff3173f34e78bf649e8c6c2a407d425381bfc524eaf09474b114f3336ad031acd999",
+    "unlockedCards": [
+      1
+    ],
+    "pendingCards": [],
+    "friends": [
+      "Amélie"
+    ],
+    "friendRequests": []
+  },
+  {
+    "id": "d17d9398-ef31-4e92-b1ad-6164daec3428",
+    "username": "Amélie",
+    "password": "93fb49d1fabc2e5e061ff2c8ea60a82e:984b1772027651a1347a44a246c4e48524016145f6fddc1d2c3f072555908292cda7ad887c9be5c6e02243c8103403822dcef41096b2297c026ed5f6be033606",
+    "unlockedCards": [
+      1
+    ],
+    "pendingCards": [],
+    "friends": [
+      "ThibaudVB"
+    ],
+    "friendRequests": []
   }
 ]

@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Giraffe",
+    "type": "mammifère",
+    "rarity": "commun",
+    "hp": 100,
+    "attack": 30,
+    "description": "Le plus grand mammifère terrestre"
+  },
+  {
+    "id": 2,
+    "name": "Requin-marteau",
+    "type": "Poisson",
+    "rarity": "rare",
+    "hp": 100,
+    "attack": 30,
+    "description": "Un grand prédateur marin"
+  }, 
+
+  {
+    "id": 3,
+    "name": "Tigre",
+    "type": "mammifère",
+    "rarity": "rare",
+    "hp": 120,
+    "attack": 40,
+    "description": "Un grand félin aux rayures distinctives"
+  }
+]
