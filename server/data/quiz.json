@@ -1,0 +1,1648 @@
+{
+  "general": [
+    {
+      "id": "g1",
+      "question": "Quel est le plus grand animal terrestre ?",
+      "choices": [
+        "Éléphant d Afrique",
+        "Girafe",
+        "Hippopotame",
+        "Rhinocéros"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "g2",
+      "question": "Quel animal est le plus rapide sur terre ?",
+      "choices": [
+        "Lion",
+        "Guépard",
+        "Tigre",
+        "Jaguar"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g3",
+      "question": "Combien de coeurs possède une pieuvre ?",
+      "choices": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "g4",
+      "question": "Quel animal peut tourner sa tête à 270° ?",
+      "choices": [
+        "Hibou",
+        "Aigle",
+        "Flamant rose",
+        "Perroquet"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "g5",
+      "question": "Quel mammifère pond des oeufs ?",
+      "choices": [
+        "Le kangourou",
+        "Le koala",
+        "L ornithorynque",
+        "Le wombat"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "g6",
+      "question": "Combien de pattes possède une araignée ?",
+      "choices": [
+        "6",
+        "8",
+        "10",
+        "12"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g7",
+      "question": "Quel est le seul mammifère capable de voler ?",
+      "choices": [
+        "L écureuil volant",
+        "La chauve-souris",
+        "Le poisson volant",
+        "La belette"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g8",
+      "question": "Combien de temps peut dormir un koala par jour ?",
+      "choices": [
+        "8 heures",
+        "12 heures",
+        "18 heures",
+        "22 heures"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "g9",
+      "question": "Quel est le plus grand oiseau du monde ?",
+      "choices": [
+        "Condor",
+        "Autruche",
+        "Albatros",
+        "Émeu"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g10",
+      "question": "Quelle est la durée de gestation de l éléphant ?",
+      "choices": [
+        "6 mois",
+        "12 mois",
+        "18 mois",
+        "22 mois"
+      ],
+      "answer": 3
+    },
+    {
+      "id": "g11",
+      "question": "Quel animal a la plus longue durée de vie connue ?",
+      "choices": [
+        "Tortue géante",
+        "Baleine boréale",
+        "Requin du Groenland",
+        "Éléphant"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "g12",
+      "question": "Comment s appelle le cri du lion ?",
+      "choices": [
+        "Le rugissement",
+        "Le bramement",
+        "Le bêlement",
+        "Le feulement"
+      ],
+      "answer": 0
+    },
+    {
+      "id": "g13",
+      "question": "Quel animal est connu pour changer de couleur ?",
+      "choices": [
+        "Lézard vert",
+        "Caméléon",
+        "Gecko",
+        "Varan"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g14",
+      "question": "Quelle est la vitesse du faucon pèlerin en piqué ?",
+      "choices": [
+        "180 km/h",
+        "240 km/h",
+        "320 km/h",
+        "390 km/h"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "g15",
+      "question": "Quel reptile est le plus lourd au monde ?",
+      "choices": [
+        "Anaconda vert",
+        "Crocodile marin",
+        "Varan de Komodo",
+        "Boa constricteur"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g16",
+      "question": "Combien de chambres a le coeur d un mammifère ?",
+      "choices": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 3
+    },
+    {
+      "id": "g17",
+      "question": "Quel animal possède des empreintes digitales similaires à l humain ?",
+      "choices": [
+        "Chimpanzé",
+        "Gorille",
+        "Koala",
+        "Les trois"
+      ],
+      "answer": 2
+    },
+    {
+      "id": "g18",
+      "question": "Le dauphin est-il un poisson ?",
+      "choices": [
+        "Oui",
+        "Non, c est un mammifère",
+        "Non, c est un reptile",
+        "Oui, un poisson intelligent"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g19",
+      "question": "Quel animal peut survivre dans le vide spatial ?",
+      "choices": [
+        "La fourmi",
+        "Le tardigrade",
+        "Le scorpion",
+        "La mouche"
+      ],
+      "answer": 1
+    },
+    {
+      "id": "g20",
+      "question": "Combien d espèces de pingouins existent ?",
+      "choices": [
+        "5",
+        "10",
+        "18",
+        "27"
+      ],
+      "answer": 2
+    }
+  ],
+  "byCard": {
+    "1": [
+      {
+        "id": "c1_1",
+        "question": "Combien mesure en moyenne une girafe adulte ?",
+        "choices": [
+          "3 mètres",
+          "4,5 mètres",
+          "5,5 mètres",
+          "7 mètres"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c1_2",
+        "question": "De quelle famille fait partie la girafe ?",
+        "choices": [
+          "Bovidés",
+          "Giraffidés",
+          "Cervidés",
+          "Équidés"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c1_3",
+        "question": "Combien de vertèbres cervicales possède la girafe ?",
+        "choices": [
+          "5",
+          "7",
+          "10",
+          "14"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c1_4",
+        "question": "Quel est le régime alimentaire de la girafe ?",
+        "choices": [
+          "Carnivore",
+          "Omnivore",
+          "Herbivore",
+          "Insectivore"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c1_5",
+        "question": "Quelle est la couleur de la langue de la girafe ?",
+        "choices": [
+          "Rose",
+          "Rouge",
+          "Bleu-noir",
+          "Violette"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c1_6",
+        "question": "Dans quel continent vit la girafe ?",
+        "choices": [
+          "Asie",
+          "Amérique du Sud",
+          "Australie",
+          "Afrique"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c1_7",
+        "question": "Combien de temps dort une girafe par jour ?",
+        "choices": [
+          "30 minutes",
+          "2 heures",
+          "5 heures",
+          "8 heures"
+        ],
+        "answer": 0
+      }
+    ],
+    "2": [
+      {
+        "id": "c2_1",
+        "question": "Pourquoi la tête du requin-marteau est-elle aplatie ?",
+        "choices": [
+          "Pour nager plus vite",
+          "Pour améliorer sa vision et électroréception",
+          "Pour effrayer ses proies",
+          "Pour se camoufler"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c2_2",
+        "question": "Combien de rangées de dents peut avoir un requin ?",
+        "choices": [
+          "1 rangée",
+          "2 rangées",
+          "Jusqu à 7 rangées",
+          "Jusqu à 15 rangées"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c2_3",
+        "question": "Le requin-marteau appartient à quel groupe ?",
+        "choices": [
+          "Mammifères",
+          "Amphibiens",
+          "Poissons cartilagineux",
+          "Poissons osseux"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c2_4",
+        "question": "Comment le requin détecte-t-il les champs électriques ?",
+        "choices": [
+          "Par la vue",
+          "Par les ampoules de Lorenzini",
+          "Par l odorat",
+          "Par écholocation"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c2_5",
+        "question": "Quel est le comportement social du requin-marteau ?",
+        "choices": [
+          "Solitaire",
+          "En couple",
+          "En bancs de centaines",
+          "En trio"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c2_6",
+        "question": "Quelle est la vitesse du requin-marteau ?",
+        "choices": [
+          "10 km/h",
+          "25 km/h",
+          "50 km/h",
+          "80 km/h"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c2_7",
+        "question": "Quel sens est le plus développé chez le requin ?",
+        "choices": [
+          "La vue",
+          "Le toucher",
+          "L odorat",
+          "L ouïe"
+        ],
+        "answer": 2
+      }
+    ],
+    "3": [
+      {
+        "id": "c3_1",
+        "question": "Combien de sous-espèces de tigre existent encore ?",
+        "choices": [
+          "2",
+          "4",
+          "6",
+          "9"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c3_2",
+        "question": "Le tigre est-il un bon nageur ?",
+        "choices": [
+          "Non, il déteste l eau",
+          "Oui, très bien",
+          "Il flotte mais ne nage pas",
+          "Il se noie"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c3_3",
+        "question": "À quoi servent les rayures du tigre ?",
+        "choices": [
+          "Attirer les femelles",
+          "Réguler la température",
+          "Camouflage dans la végétation",
+          "Effrayer les prédateurs"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c3_4",
+        "question": "Quel est l habitat naturel du tigre ?",
+        "choices": [
+          "Savane africaine",
+          "Forêts d Asie",
+          "Toundra arctique",
+          "Déserts d Australie"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c3_5",
+        "question": "Quelle est la vitesse maximale d un tigre ?",
+        "choices": [
+          "30 km/h",
+          "50 km/h",
+          "65 km/h",
+          "90 km/h"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c3_6",
+        "question": "Le tigre est-il solitaire ?",
+        "choices": [
+          "Non, en meute",
+          "Oui, sauf la femelle avec petits",
+          "Non, en couple",
+          "Oui, toujours seul"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c3_7",
+        "question": "Quelle espèce de tigre est la plus grande ?",
+        "choices": [
+          "Tigre du Bengale",
+          "Tigre de Sibérie",
+          "Tigre de Sumatra",
+          "Tigre de Chine"
+        ],
+        "answer": 1
+      }
+    ],
+    "4": [
+      {
+        "id": "c4_1",
+        "question": "Quelle est la durée de vie d une tortue géante ?",
+        "choices": [
+          "50 ans",
+          "80 ans",
+          "Plus de 100 ans",
+          "Plus de 200 ans"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c4_2",
+        "question": "De quoi se nourrit la tortue géante ?",
+        "choices": [
+          "De poissons",
+          "D insectes",
+          "D herbes et feuilles",
+          "De chair"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c4_3",
+        "question": "Combien pèse une tortue géante adulte ?",
+        "choices": [
+          "20 kg",
+          "80 kg",
+          "250 kg",
+          "500 kg"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c4_4",
+        "question": "Où trouve-t-on les célèbres tortues géantes sauvages ?",
+        "choices": [
+          "Aux Maldives",
+          "Aux Galápagos et à Aldabra",
+          "En Amazonie",
+          "En Australie"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c4_5",
+        "question": "La carapace de la tortue est-elle un os ?",
+        "choices": [
+          "Non, de la kératine",
+          "Oui, partie du squelette",
+          "Non, du cartilage",
+          "Oui, mais séparée"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c4_6",
+        "question": "La tortue peut-elle sortir sa tête de sa carapace ?",
+        "choices": [
+          "Jamais",
+          "Oui, la plupart le peuvent",
+          "Seulement les bébés",
+          "Seulement en danger"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c4_7",
+        "question": "Comment la tortue géante régule-t-elle sa température ?",
+        "choices": [
+          "Comme les mammifères",
+          "Par ectothermie (sang froid)",
+          "Par transpiration",
+          "Par hibernation"
+        ],
+        "answer": 1
+      }
+    ],
+    "5": [
+      {
+        "id": "c5_1",
+        "question": "Quelle est l envergure d un aigle royal ?",
+        "choices": [
+          "80 cm",
+          "1,5 mètre",
+          "2,2 mètres",
+          "3 mètres"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c5_2",
+        "question": "La vision de l aigle est combien de fois meilleure ?",
+        "choices": [
+          "2 fois",
+          "5 fois",
+          "8 fois",
+          "10 fois"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c5_3",
+        "question": "L aigle royal est-il monogame ?",
+        "choices": [
+          "Non, change chaque saison",
+          "Oui, à vie",
+          "Oui, 3 ans",
+          "Dépend du territoire"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c5_4",
+        "question": "Comment s appelle le nid de l aigle ?",
+        "choices": [
+          "Un terrier",
+          "Une tanière",
+          "Une eyrie (aire)",
+          "Un gîte"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c5_5",
+        "question": "Quelle est la vitesse de plongée de l aigle royal ?",
+        "choices": [
+          "80 km/h",
+          "120 km/h",
+          "160 km/h",
+          "240 km/h"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c5_6",
+        "question": "De quoi se nourrit l aigle royal ?",
+        "choices": [
+          "D insectes",
+          "De poissons uniquement",
+          "Lapins et petits mammifères",
+          "De charognes"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c5_7",
+        "question": "Dans quel pays l aigle royal est-il animal national ?",
+        "choices": [
+          "France",
+          "Allemagne",
+          "Mexique",
+          "Russie"
+        ],
+        "answer": 2
+      }
+    ],
+    "6": [
+      {
+        "id": "c6_1",
+        "question": "Le panda roux est-il apparenté au grand panda ?",
+        "choices": [
+          "Oui, même genre",
+          "Non, plus proche des ratons laveurs",
+          "Non, famille Ailuridae propre",
+          "Oui, sous-espèce"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c6_2",
+        "question": "Où vit le panda roux à l état sauvage ?",
+        "choices": [
+          "Chine et Himalaya",
+          "Afrique subsaharienne",
+          "Amazonie",
+          "Australie"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "c6_3",
+        "question": "De quoi se nourrit le panda roux ?",
+        "choices": [
+          "De viande",
+          "Bambou, fruits et insectes",
+          "De poissons",
+          "De noix uniquement"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c6_4",
+        "question": "Le panda roux est-il menacé ?",
+        "choices": [
+          "Non, abondant",
+          "Oui, vulnérable",
+          "Oui, danger critique",
+          "Non, domestiqué"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c6_5",
+        "question": "Comment le panda roux passe-t-il les nuits froides ?",
+        "choices": [
+          "Il migre",
+          "S enroule avec sa queue",
+          "Hiberne 6 mois",
+          "Plonge dans eau chaude"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c6_6",
+        "question": "Quelle est la taille d un panda roux adulte ?",
+        "choices": [
+          "30 cm",
+          "55 cm",
+          "90 cm",
+          "1,2 mètre"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c6_7",
+        "question": "Quel est le prédateur naturel du panda roux ?",
+        "choices": [
+          "Tigre et panthère des neiges",
+          "Le crocodile",
+          "L aigle de mer",
+          "Le loup gris"
+        ],
+        "answer": 0
+      }
+    ],
+    "7": [
+      {
+        "id": "c7_1",
+        "question": "Le cobra royal est-il le plus grand serpent venimeux ?",
+        "choices": [
+          "Non, mamba noir",
+          "Oui",
+          "Non, le taipan",
+          "Non, l anaconda"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c7_2",
+        "question": "Quelle longueur peut atteindre le cobra royal ?",
+        "choices": [
+          "1,5 mètre",
+          "3 mètres",
+          "5,5 mètres",
+          "8 mètres"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c7_3",
+        "question": "Que mange principalement le cobra royal ?",
+        "choices": [
+          "Des rongeurs",
+          "D autres serpents",
+          "Des oiseaux",
+          "Des grenouilles"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c7_4",
+        "question": "Le cobra royal est-il ovipare ?",
+        "choices": [
+          "Non, vivipare",
+          "Oui, seul serpent qui construit un nid",
+          "Oui, abandonne ses oeufs",
+          "Non, naissance vivante"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c7_5",
+        "question": "Que signifie le capuchon élargi du cobra ?",
+        "choices": [
+          "Cherche nourriture",
+          "Posture défense/intimidation",
+          "Régule température",
+          "Attire partenaire"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c7_6",
+        "question": "Dans quel continent vit le cobra royal ?",
+        "choices": [
+          "Afrique",
+          "Amérique du Sud",
+          "Asie du Sud et Sud-Est",
+          "Australie"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c7_7",
+        "question": "Le venin du cobra est-il neurotoxique ?",
+        "choices": [
+          "Hémotoxique uniquement",
+          "Neurotoxique principalement",
+          "Les deux à parts égales",
+          "Ni l un ni l autre"
+        ],
+        "answer": 1
+      }
+    ],
+    "8": [
+      {
+        "id": "c8_1",
+        "question": "Combien pèse un éléphant d Afrique mâle adulte ?",
+        "choices": [
+          "2 tonnes",
+          "4 tonnes",
+          "6 tonnes",
+          "10 tonnes"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c8_2",
+        "question": "À quoi sert la trompe de l éléphant ?",
+        "choices": [
+          "Uniquement boire",
+          "Respirer, saisir, sentir, boire, communiquer",
+          "Seulement combattre",
+          "Réguler température"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c8_3",
+        "question": "Comment les éléphants communiquent à longue distance ?",
+        "choices": [
+          "Par ultrasons",
+          "Par infrasons",
+          "Par signaux visuels",
+          "Par odeurs uniquement"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c8_4",
+        "question": "Quel est le rôle de la femelle dominante ?",
+        "choices": [
+          "Aucun rôle spécial",
+          "Guide le troupeau (matriarche)",
+          "Chasse seule",
+          "Élève tous les jeunes"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c8_5",
+        "question": "Quelle est la durée de gestation de l éléphant d Afrique ?",
+        "choices": [
+          "6 mois",
+          "12 mois",
+          "18 mois",
+          "22 mois"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c8_6",
+        "question": "Les éléphants d Afrique et d Asie sont-ils la même espèce ?",
+        "choices": [
+          "Oui, sous-espèces",
+          "Non, deux espèces distinctes",
+          "Oui, taille seule diffère",
+          "Non, deux genres"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c8_7",
+        "question": "Combien de dents l éléphant possède-t-il dans sa vie ?",
+        "choices": [
+          "6 jeux de dents",
+          "12 dents au total",
+          "26 dents au total",
+          "52 dents permanentes"
+        ],
+        "answer": 0
+      }
+    ],
+    "9": [
+      {
+        "id": "c9_1",
+        "question": "Comment le caméléon change-t-il de couleur ?",
+        "choices": [
+          "Par des pigments",
+          "Par nanocristaux réfléchissant la lumière",
+          "Par absorption de chaleur",
+          "Par mécanisme chimique"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c9_2",
+        "question": "Les yeux du caméléon bougent-ils indépendamment ?",
+        "choices": [
+          "Non, ensemble",
+          "Oui, dans directions différentes",
+          "Seulement en danger",
+          "Non, fixes"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c9_3",
+        "question": "Quelle est la vitesse de la langue d un caméléon ?",
+        "choices": [
+          "10 km/h",
+          "26 km/h",
+          "48 km/h",
+          "97 km/h"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c9_4",
+        "question": "Le caméléon change de couleur uniquement pour se camoufler ?",
+        "choices": [
+          "Oui, uniquement",
+          "Non, aussi pour communiquer et réguler température",
+          "Seulement face aux prédateurs",
+          "Non, seulement séduire"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c9_5",
+        "question": "Où vit la majorité des caméléons ?",
+        "choices": [
+          "Australie",
+          "Amérique du Sud",
+          "Madagascar et Afrique",
+          "Asie du Sud-Est"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c9_6",
+        "question": "Les pattes du caméléon sont-elles préhensiles ?",
+        "choices": [
+          "Non, pour courir vite",
+          "Oui, pour saisir les branches",
+          "Non, pour creuser",
+          "Non, pour nager"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c9_7",
+        "question": "La langue du caméléon est-elle plus longue que son corps ?",
+        "choices": [
+          "Non, moitié",
+          "Oui, 1,5 fois sa longueur",
+          "Même longueur",
+          "Non, très courte"
+        ],
+        "answer": 1
+      }
+    ],
+    "10": [
+      {
+        "id": "c10_1",
+        "question": "Le loup arctique est-il une espèce à part entière ?",
+        "choices": [
+          "Oui, espèce unique",
+          "Non, sous-espèce du loup gris",
+          "Non, hybride loup-chien",
+          "Oui, proche du coyote"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c10_2",
+        "question": "Quelle est la couleur du pelage du loup arctique ?",
+        "choices": [
+          "Toujours gris",
+          "Toujours noir",
+          "Blanc à gris clair",
+          "Roux et brun"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c10_3",
+        "question": "De quoi se nourrit le loup arctique ?",
+        "choices": [
+          "Poissons uniquement",
+          "Boeufs musqués, caribous, lemmings",
+          "Végétaux en été",
+          "Phoques"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c10_4",
+        "question": "Quel est le rôle du loup alpha ?",
+        "choices": [
+          "Il chasse seul",
+          "Dirige la meute, priorité nourriture",
+          "Garde les petits",
+          "Aucun rôle particulier"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c10_5",
+        "question": "Comment le loup communique avec sa meute ?",
+        "choices": [
+          "Uniquement odeurs",
+          "Hurlements, postures et odeurs",
+          "Seulement le regard",
+          "Sons ultrasoniques"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c10_6",
+        "question": "Combien de membres peut compter une meute ?",
+        "choices": [
+          "2 à 3",
+          "5 à 10",
+          "15 à 20",
+          "Plus de 30"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c10_7",
+        "question": "Le loup arctique hiberne-t-il ?",
+        "choices": [
+          "Oui, tout l hiver",
+          "Non, actif toute l année",
+          "Oui, 3 mois",
+          "Seulement les femelles"
+        ],
+        "answer": 1
+      }
+    ],
+    "11": [
+      {
+        "id": "c11_1",
+        "question": "Le phénix est une créature mythologique originaire de quelle civilisation ?",
+        "choices": [
+          "Mésopotamie",
+          "Égypte et Grèce antiques",
+          "Chine uniquement",
+          "Amérique précolombienne"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c11_2",
+        "question": "Comment renaît le phénix selon la mythologie ?",
+        "choices": [
+          "Dans une source magique",
+          "De ses propres cendres",
+          "En hibernant 1000 ans",
+          "En absorbant le soleil"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c11_3",
+        "question": "Quelle est la couleur traditionnelle du phénix ?",
+        "choices": [
+          "Bleu et argent",
+          "Rouge, orange et doré",
+          "Vert et violet",
+          "Blanc immaculé"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c11_4",
+        "question": "Le phénix symbolise principalement quoi ?",
+        "choices": [
+          "La destruction",
+          "La renaissance et l immortalité",
+          "La guerre",
+          "La sagesse"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c11_5",
+        "question": "Dans quelle franchise le phénix est-il un animal magique célèbre ?",
+        "choices": [
+          "Le Seigneur des Anneaux",
+          "Harry Potter (Fumseck)",
+          "Game of Thrones",
+          "Narnia"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c11_6",
+        "question": "Combien de fois le phénix peut-il renaître (mythologie grecque) ?",
+        "choices": [
+          "3 fois",
+          "7 fois",
+          "500 fois",
+          "Sans limite"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c11_7",
+        "question": "Quel oiseau réel a été associé au mythe du phénix ?",
+        "choices": [
+          "L albatros",
+          "Le flamant rose",
+          "L aigle chauve",
+          "La cigogne"
+        ],
+        "answer": 1
+      }
+    ],
+    "12": [
+      {
+        "id": "c12_1",
+        "question": "Combien pèse un gorille à dos argenté mâle adulte ?",
+        "choices": [
+          "80 kg",
+          "120 kg",
+          "200 kg",
+          "300 kg"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c12_2",
+        "question": "Pourquoi les appelle-t-on dos argenté ?",
+        "choices": [
+          "Fourrure entièrement argentée",
+          "Dos qui blanchit avec l âge",
+          "Brillent dans le noir",
+          "Peau argentée sous fourrure"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c12_3",
+        "question": "Le gorille est-il herbivore ?",
+        "choices": [
+          "Carnivore",
+          "Herbivore (feuilles, fruits, tiges)",
+          "Omnivore équilibré",
+          "Insectivore"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c12_4",
+        "question": "Quelle est la force d un gorille vs humain ?",
+        "choices": [
+          "2 fois plus fort",
+          "5 fois plus fort",
+          "10 fois plus fort",
+          "Identique"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c12_5",
+        "question": "Quel % d ADN le gorille partage-t-il avec l humain ?",
+        "choices": [
+          "75%",
+          "88%",
+          "96%",
+          "99%"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c12_6",
+        "question": "Où vit le gorille à dos argenté ?",
+        "choices": [
+          "Savanes africaines",
+          "Forêts tropicales d Afrique centrale",
+          "Déserts d Afrique",
+          "Forêts tempérées Europe"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c12_7",
+        "question": "Le gorille est-il en danger ?",
+        "choices": [
+          "Non, abondant",
+          "Oui, danger critique d extinction",
+          "Non, protégé et prospère",
+          "Déjà quasi éteint"
+        ],
+        "answer": 1
+      }
+    ],
+    "13": [
+      {
+        "id": "c13_1",
+        "question": "Pourquoi la méduse Turritopsis dohrnii est-elle dite immortelle ?",
+        "choices": [
+          "Ne peut pas être tuée",
+          "Revient au stade juvénile après maturité",
+          "Vit plus de 500 ans",
+          "Se régénère après coupe"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c13_2",
+        "question": "Les méduses ont-elles un cerveau ?",
+        "choices": [
+          "Oui, simple",
+          "Non, réseau nerveux seulement",
+          "Oui, deux cerveaux",
+          "Aucun système nerveux"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c13_3",
+        "question": "De quelle substance est composée une méduse à 95% ?",
+        "choices": [
+          "De sel",
+          "D eau",
+          "De protéines",
+          "De cartilage"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c13_4",
+        "question": "Comment s appellent les cellules venimeuses des méduses ?",
+        "choices": [
+          "Tentacules lisses",
+          "Cnidocytes",
+          "Palpes",
+          "Nématocystes"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c13_5",
+        "question": "Quelle est la méduse la plus venimeuse ?",
+        "choices": [
+          "Méduse boîte d Australie",
+          "Méduse lune",
+          "Physalie",
+          "Méduse crinière de lion"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "c13_6",
+        "question": "Les méduses ont-elles un coeur ?",
+        "choices": [
+          "Oui, simple",
+          "Non, pas de coeur ni sang",
+          "Oui, deux coeurs",
+          "Non mais système circulatoire"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c13_7",
+        "question": "Comment les méduses se déplacent-elles ?",
+        "choices": [
+          "Nageoires actives",
+          "Contraction ombrelle et courants",
+          "Uniquement courants",
+          "Marche sur fond marin"
+        ],
+        "answer": 1
+      }
+    ],
+    "14": [
+      {
+        "id": "c14_1",
+        "question": "Comment s appelle le groupe social du lion ?",
+        "choices": [
+          "Une meute",
+          "Une horde",
+          "Une troupe",
+          "Une fierté (pride)"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c14_2",
+        "question": "Qui chasse principalement dans un groupe de lions ?",
+        "choices": [
+          "Les mâles dominants",
+          "Les femelles (lionnes)",
+          "Les jeunes mâles",
+          "Tous de façon égale"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c14_3",
+        "question": "À quelle distance entend-on le rugissement du lion ?",
+        "choices": [
+          "500 mètres",
+          "2 km",
+          "8 km",
+          "15 km"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c14_4",
+        "question": "Combien d heures par jour un lion peut-il dormir ?",
+        "choices": [
+          "4 heures",
+          "8 heures",
+          "16 heures",
+          "22 heures"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c14_5",
+        "question": "À quel âge la crinière est-elle complète ?",
+        "choices": [
+          "1 an",
+          "3 ans",
+          "5 ans",
+          "8 ans"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c14_6",
+        "question": "Le lion d Afrique est-il menacé ?",
+        "choices": [
+          "Non, abondant",
+          "Oui, vulnérable",
+          "Non, en augmentation",
+          "Oui, danger critique"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c14_7",
+        "question": "Dans quel habitat vit le lion ?",
+        "choices": [
+          "Forêts denses",
+          "Savanes et prairies africaines",
+          "Déserts",
+          "Montagnes enneigées"
+        ],
+        "answer": 1
+      }
+    ],
+    "15": [
+      {
+        "id": "c15_1",
+        "question": "Le Grand-Duc est-il le plus grand hibou d Europe ?",
+        "choices": [
+          "Non, chouette lapone",
+          "Oui",
+          "Non, effraie des clochers",
+          "Tous de même taille"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c15_2",
+        "question": "Que permettent les disques faciaux des hiboux ?",
+        "choices": [
+          "Voir dans le noir",
+          "Concentrer les sons vers les oreilles",
+          "Communiquer",
+          "Réguler température"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c15_3",
+        "question": "Les plumes des hiboux sont-elles silencieuses en vol ?",
+        "choices": [
+          "Non, font du bruit",
+          "Oui, franges spéciales absorbent le son",
+          "Seulement la nuit",
+          "Non, sauf queue"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c15_4",
+        "question": "Combien de degrés le hibou peut-il tourner sa tête ?",
+        "choices": [
+          "90°",
+          "180°",
+          "270°",
+          "360°"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c15_5",
+        "question": "Qu est-ce qu une pelote de réjection ?",
+        "choices": [
+          "Un nid en pelote",
+          "Os et poils indigestes régurgités",
+          "Plumes de mue",
+          "Un cri particulier"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c15_6",
+        "question": "De quoi se nourrit le Grand-Duc ?",
+        "choices": [
+          "D insectes",
+          "De poissons",
+          "Lapins, rongeurs, petits mammifères",
+          "Fruits et baies"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c15_7",
+        "question": "Le hibou peut-il voir les couleurs ?",
+        "choices": [
+          "Oui, mieux que l humain",
+          "Non, daltonien total",
+          "Peu, vision surtout nuit",
+          "Oui, seulement de jour"
+        ],
+        "answer": 2
+      }
+    ],
+    "16": [
+      {
+        "id": "c16_1",
+        "question": "Quelle est la vitesse maximale du guépard ?",
+        "choices": [
+          "80 km/h",
+          "100 km/h",
+          "120 km/h",
+          "130 km/h"
+        ],
+        "answer": 3
+      },
+      {
+        "id": "c16_2",
+        "question": "En combien de secondes atteint-il 100 km/h ?",
+        "choices": [
+          "2 secondes",
+          "3 secondes",
+          "5 secondes",
+          "8 secondes"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c16_3",
+        "question": "Pourquoi le guépard ne peut-il pas rugir ?",
+        "choices": [
+          "Trop petit",
+          "Structure laryngée différente (ronronne)",
+          "Choisit de ne pas rugir",
+          "Pas de cordes vocales"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c16_4",
+        "question": "Les taches du guépard sont-elles des points ou des rosettes ?",
+        "choices": [
+          "Rayures comme tigre",
+          "Points noirs pleins",
+          "Rosettes comme léopard",
+          "Anneaux"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c16_5",
+        "question": "Le talon d Achille du guépard à la course ?",
+        "choices": [
+          "Griffes trop longues",
+          "Surchauffe après 500m",
+          "Pattes trop courtes",
+          "Mauvaise vue en mouvement"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c16_6",
+        "question": "Combien de temps maintient-il sa vitesse max ?",
+        "choices": [
+          "30 secondes",
+          "1 minute",
+          "3 minutes",
+          "10 minutes"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "c16_7",
+        "question": "Le guépard est-il en danger ?",
+        "choices": [
+          "Non, commun",
+          "Oui, vulnérable (moins de 7000)",
+          "Non, bien protégé",
+          "Quasi éteint"
+        ],
+        "answer": 1
+      }
+    ],
+    "17": [
+      {
+        "id": "c17_1",
+        "question": "Le rhinocéros noir est-il vraiment noir ?",
+        "choices": [
+          "Oui, peau noire",
+          "Non, gris (nom du sol fréquenté)",
+          "Seulement les adultes",
+          "Non, brun-rouge"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c17_2",
+        "question": "De quelle matière est la corne du rhinocéros ?",
+        "choices": [
+          "Os",
+          "Ivoire",
+          "Kératine (comme ongles)",
+          "Cartilage"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c17_3",
+        "question": "Combien de cornes possède le rhinocéros noir ?",
+        "choices": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c17_4",
+        "question": "La vue du rhinocéros est-elle bonne ?",
+        "choices": [
+          "Excellente",
+          "Très mauvaise à longue distance",
+          "Parfaite la nuit",
+          "Bonne de jour"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c17_5",
+        "question": "Le rhinocéros noir est-il en danger critique ?",
+        "choices": [
+          "Non, abondant",
+          "Oui, danger critique",
+          "Non, vulnérable seulement",
+          "Déjà éteint"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c17_6",
+        "question": "De quoi se nourrit le rhinocéros noir ?",
+        "choices": [
+          "Herbes",
+          "Feuilles, branches, arbustes (brouteur)",
+          "Racines uniquement",
+          "Fruits et graines"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c17_7",
+        "question": "Quelle est la principale menace pour le rhinocéros ?",
+        "choices": [
+          "Lions et crocodiles",
+          "Braconnage pour sa corne",
+          "La sécheresse",
+          "Les maladies"
+        ],
+        "answer": 1
+      }
+    ],
+    "18": [
+      {
+        "id": "c18_1",
+        "question": "Dans quelle mythologie le dragon d eau est signe de bonne fortune ?",
+        "choices": [
+          "Mythologie grecque",
+          "Mythologie nordique",
+          "Mythologie chinoise",
+          "Mythologie égyptienne"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c18_2",
+        "question": "Quel est le lien dragon-eau dans la culture asiatique ?",
+        "choices": [
+          "Les dragons craignent l eau",
+          "Les dragons contrôlent pluie et rivières",
+          "L eau détruit les dragons",
+          "Les dragons vivent dans la lave"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c18_3",
+        "question": "Dans le folklore chinois, combien de griffes a l Empereur dragon ?",
+        "choices": [
+          "3 griffes",
+          "4 griffes",
+          "5 griffes",
+          "7 griffes"
+        ],
+        "answer": 2
+      },
+      {
+        "id": "c18_4",
+        "question": "Le Léviathan est une créature de quelle tradition ?",
+        "choices": [
+          "Mythologie grecque",
+          "Bible hébraïque",
+          "Contes nordiques",
+          "Légendes japonaises"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c18_5",
+        "question": "Comment s appelle le dragon d eau dans la mythologie japonaise ?",
+        "choices": [
+          "Ryu",
+          "Naga",
+          "Wyvern",
+          "Leviathan"
+        ],
+        "answer": 0
+      },
+      {
+        "id": "c18_6",
+        "question": "Quelle créature réelle ressemble au dragon de légende ?",
+        "choices": [
+          "Crocodile marin",
+          "Dragon de Komodo",
+          "Iguane marin",
+          "Serpent de mer"
+        ],
+        "answer": 1
+      },
+      {
+        "id": "c18_7",
+        "question": "Dans quelle franchise trouve-t-on des dragons Eau/Dragon ?",
+        "choices": [
+          "Final Fantasy",
+          "Pokémon",
+          "The Witcher",
+          "Dark Souls"
+        ],
+        "answer": 1
+      }
+    ]
+  }
+}

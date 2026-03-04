@@ -1,251 +1,838 @@
-// -- Éléments du DOM --
-const authContainer = document.getElementById('auth-container');
-const gameContainer = document.getElementById('game-container');
-const formTitle = document.getElementById('form-title');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-const errorMsg = document.getElementById('error-msg');
-const submitBtn = document.getElementById('submit-btn');
-const toggleLink = document.getElementById('toggle-link');
-const logoutBtn = document.getElementById('logout-btn');
-const displayUsername = document.getElementById('display-username');
+import { io } from 'socket.io-client';
+const API = 'http://localhost:3000';
 
-const inventoryContainer = document.getElementById('inventory');
-const openBoosterBtn = document.getElementById('open-booster-btn');
+// ─── STATE (déclaré en premier pour éviter les ReferenceError TDZ) ─────────
+let myDeck = [], inventory = [], playerLevel = 1, coins = 0, chestSlots = [];
+let socket = null, opponent = '';
 
-// --- LOGIQUE DE NAVIGATION (SLIDER) ---
-const navBtns = document.querySelectorAll('.nav-btn');
+// ─── UTILS ─────────────────────────────────────────────────────────────────
+const getToken = () => localStorage.getItem('token');
+const ah = () => ({ Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' });
+
+async function api(url, opts = {}) {
+    try {
+        const r = await fetch(API + url, { ...opts, headers: { ...ah(), ...(opts.headers || {}) } });
+        if (r.status === 401 || r.status === 403) {
+            showToast('Session expirée', 'error');
+            setTimeout(() => { localStorage.clear(); location.reload(); }, 1400);
+            return null;
+        }
+        return r;
+    } catch { showToast('Erreur réseau 🔌', 'error'); return null; }
+}
+
+let _toastT;
+function showToast(msg, type = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = 'show ' + type;
+    clearTimeout(_toastT); _toastT = setTimeout(() => el.className = '', 3200);
+}
+
+const EMOJI = { 'Girafe': '🦒', 'Requin-marteau': '🦈', 'Tigre': '🐯' };
+const RCOL = { commun: '#9e9e9e', rare: '#42a5f5', épique: '#ab47bc', légendaire: '#f5c518' };
+const RCL = { commun: 'rc', rare: 'rr', épique: 're', légendaire: 'rl' };
+function em(name) { return EMOJI[name] || '🐾'; }
+function rcol(r) { return RCOL[r] || '#9e9e9e'; }
+function rcl(r) { return RCL[r] || 'rc'; }
+
+// ─── NAVIGATION + SWIPE ────────────────────────────────────────────────────
 const slider = document.getElementById('slider');
+const viewport = document.getElementById('viewport');
+const navBtns = document.querySelectorAll('.nb');
+let currentTab = 0;
+let touchStartX = 0, touchStartY = 0, isSwiping = false;
 
-// Fonction pour faire glisser vers un panel (0 = Boutique, 1 = Cartes, 2 = Combat, 3 = Social)
-function goToTab(index) {
-    slider.style.transform = `translateX(-${index * 100}vw)`;
-    navBtns.forEach(btn => btn.classList.remove('active'));
-    navBtns[index].classList.add('active');
+function goToTab(idx, smooth = true) {
+    currentTab = idx;
+    slider.style.transition = smooth ? 'transform .3s cubic-bezier(.4,0,.2,1)' : 'none';
+    slider.style.transform = `translateX(-${idx * 20}%)`;
+    navBtns.forEach((b, i) => b.classList.toggle('active', i === idx));
+    if (idx === 0) refreshHome();
+    if (idx === 1) renderDeckView();
+    if (idx === 3) loadFriends();
+    if (idx === 4) loadScoreboard();
 }
+navBtns.forEach((btn, i) => btn.addEventListener('click', () => goToTab(i)));
 
-navBtns.forEach((btn, index) => {
-    btn.addEventListener('click', () => goToTab(index));
-});
+// Touch swipe
+viewport.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    isSwiping = false;
+}, { passive: true });
 
-// -- Gérer l'authentification --
+viewport.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+        isSwiping = true;
+    }
+    if (isSwiping) {
+        // Live drag feedback
+        const offset = -(currentTab * 20) + (dx / window.innerWidth) * 100 / 5;
+        slider.style.transition = 'none';
+        slider.style.transform = `translateX(${offset}%)`;
+    }
+}, { passive: true });
+
+viewport.addEventListener('touchend', e => {
+    if (!isSwiping) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (dx < -50 && currentTab < 4) goToTab(currentTab + 1);
+    else if (dx > 50 && currentTab > 0) goToTab(currentTab - 1);
+    else goToTab(currentTab); // snap back
+    isSwiping = false;
+}, { passive: true });
+
+// ─── AUTH ───────────────────────────────────────────────────────────────────
 let isLogin = true;
+const authScreen = document.getElementById('auth-screen');
+const gameScreen = document.getElementById('game-screen');
 
-toggleLink.addEventListener('click', () => {
-    isLogin = !isLogin;
-    formTitle.innerText = isLogin ? 'Login' : 'Register';
-    submitBtn.innerText = isLogin ? 'Connexion' : 'S\'inscrire';
-    toggleLink.innerText = isLogin ? "Pas de compte ? S'inscrire" : "Déjà un compte ? Connexion";
-    errorMsg.innerText = '';
+function setAuthMode(login) {
+    isLogin = login;
+    document.getElementById('form-title').innerText = login ? 'Connexion' : 'Inscription';
+    document.getElementById('submit-btn').innerText = login ? 'Se connecter' : "S'inscrire";
+    document.getElementById('toggle-link').innerHTML = login
+        ? "Pas de compte ? <span>S'inscrire</span>"
+        : "Déjà un compte ? <span>Se connecter</span>";
+    document.getElementById('toggle-link').querySelector('span').onclick = () => setAuthMode(!isLogin);
+    document.getElementById('error-msg').innerText = '';
+}
+setAuthMode(true);
+
+document.getElementById('submit-btn').addEventListener('click', async () => {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value;
+    const err = document.getElementById('error-msg');
+    if (!u || !p) { err.innerText = 'Remplis tous les champs.'; return; }
+    err.innerText = '';
+    const r = await fetch(`${API}${isLogin ? '/login' : '/register'}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p })
+    });
+    const d = await r.json();
+    if (r.ok) {
+        localStorage.setItem('token', d.token);
+        localStorage.setItem('username', d.username);
+        launchGame();
+    } else err.innerText = d.error;
+});
+document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('submit-btn').click(); });
+document.getElementById('logout-btn').addEventListener('click', () => {
+    if (confirm('Se déconnecter ?')) { if (socket) socket.disconnect(); localStorage.clear(); location.reload(); }
 });
 
-submitBtn.addEventListener('click', async () => {
-    const username = usernameInput.value;
-    const password = passwordInput.value;
-    const endpoint = isLogin ? '/login' : '/register';
+function launchGame() {
+    authScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+    document.getElementById('tb-username').innerText = localStorage.getItem('username') || '?';
+    initSocket();
+    loadInventory().then(() => goToTab(0));
+}
+if (getToken()) launchGame();
 
-    try {
-        const response = await fetch(`http://localhost:3000${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('username', data.username);
-            showGameScreen();
-        } else {
-            errorMsg.innerText = data.error;
-        }
-    } catch (err) {
-        errorMsg.innerText = "Erreur de connexion au serveur.";
-    }
-});
-
-logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    showAuthScreen();
-});
-
-// -- Affichage des écrans --
-function showAuthScreen() {
-    authContainer.style.display = 'flex';
-    gameContainer.style.display = 'none';
-    usernameInput.value = '';
-    passwordInput.value = '';
+function updateTopBar(data) {
+    document.getElementById('tb-level').innerText = data.level;
+    document.getElementById('tb-xp-fill').style.width = `${Math.min(100, (data.xp / data.xpNeeded) * 100)}%`;
+    document.getElementById('tb-coins').innerText = data.coins ?? 0;
 }
 
-function showGameScreen() {
-    authContainer.style.display = 'none';
-    gameContainer.style.display = 'flex';
-    displayUsername.innerText = localStorage.getItem('username'); // Affiche le pseudo en haut
-    
-    // On centre la vue sur l'onglet 2 (Combat) par défaut !
-    goToTab(2); 
-    
-    // On charge les données
-    loadInventory(); 
-    loadFriends();
-}
-
-// --- OUVRIR UN BOOSTER ---
-openBoosterBtn.addEventListener('click', async () => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/open-booster', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-            alert(`📦 WOUAH ! Tu as obtenu : ${data.card.name} ! \nVa dans l'onglet Cartes pour la débloquer.`);
-            loadInventory(); 
-        } else {
-            alert(data.error); 
-        }
-    } catch (err) {
-        console.error("Erreur d'ouverture du booster", err);
-    }
-});
-
-// -- INVENTAIRE --
 async function loadInventory() {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/inventory', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
-        const cards = await response.json();
+    const r = await api('/api/inventory');
+    if (!r || !r.ok) return;
+    const d = await r.json();
+    inventory = d.inventory;
+    myDeck = d.deck;
+    playerLevel = d.level;
+    coins = d.coins ?? 0;
+    chestSlots = d.chestSlots || [];
+    updateTopBar(d);
+    renderChestSlots();
+    renderDeckView();
+    refreshHome();
+}
 
-        inventoryContainer.innerHTML = cards.map((card, index) => {
-            const rarityClass = card.rarity ? card.rarity.toLowerCase() : 'commun';
-            let statusClass = '';
-            let centerIcon = '';
-            
-            if (card.status === 'locked') {
-                statusClass = 'locked';
-                centerIcon = '<div class="lock-icon">🔒</div>';
-            } else if (card.status === 'pending') {
-                statusClass = 'pending';
-                centerIcon = '<div class="quiz-icon">❓</div>';
+// ─── HOME ───────────────────────────────────────────────────────────────────
+function refreshHome() {
+    // lock/warn
+    const lock = document.getElementById('home-lock');
+    const warn = document.getElementById('home-deck-warn');
+    const btn = document.getElementById('battle-btn');
+    if (playerLevel < 2) {
+        lock.style.display = 'block'; warn.style.display = 'none';
+        btn.classList.add('disabled');
+    } else {
+        lock.style.display = 'none';
+        if (myDeck.length < 3) { warn.style.display = 'block'; btn.classList.add('disabled'); }
+        else { warn.style.display = 'none'; btn.classList.remove('disabled'); }
+    }
+    // deck strip
+    const dsc = document.getElementById('ds-cards');
+    if (myDeck.length === 0) { dsc.innerHTML = '<span class="ds-empty">Aucune carte</span>'; return; }
+    dsc.innerHTML = myDeck.map(id => {
+        const c = inventory.find(x => x.id === id);
+        return c ? `<div class="ds-mini">${em(c.name)} ${c.name}</div>` : '';
+    }).join('');
+    renderChestSlots();
+}
+
+// ─── CHEST SLOTS ────────────────────────────────────────────────────────────
+function renderChestSlots() {
+    const FREE = 3;
+    const unlockedCount = chestSlots.filter(s => s.unlocked).length;
+    chestSlots.forEach((slot, i) => {
+        const el = document.getElementById(`cs-${i}`);
+        if (!el) return;
+        el.className = 'chest-slot';
+        if (slot.unlocked && slot.card) {
+            // Ready to collect
+            el.classList.add('cs-ready');
+            el.innerHTML = `<div class="cs-icon">🎁</div><div class="cs-label">${slot.card.name}</div><div class="cs-sub">Récupérer !</div>`;
+        } else if (!slot.unlocked) {
+            const isFreeSlot = unlockedCount < FREE;
+            if (isFreeSlot) {
+                el.classList.add('cs-free');
+                el.innerHTML = `<div class="cs-icon">📦</div><div class="cs-label">Booster</div><div class="cs-sub" style="color:var(--gold)">GRATUIT</div>`;
+            } else {
+                el.classList.add('cs-paid');
+                el.innerHTML = `<div class="cs-icon">🔒</div><div class="cs-label">Booster</div><div class="cs-sub">🪙 100</div>`;
             }
+        } else {
+            el.classList.add('cs-empty');
+            el.innerHTML = `<div class="cs-icon" style="opacity:.3">📦</div><div class="cs-label" style="opacity:.3">Vide</div>`;
+        }
+    });
+}
 
-            return `
-            <div class="card ${rarityClass} ${statusClass}" data-index="${index}">
-                ${centerIcon}
-                <h3 style="color: #2d3436;">${card.name}</h3>
-                <p style="color: #636e72; margin-top: -10px; font-size: 0.9em;"><em>${card.type}</em></p>
-                <hr style="border: 0; border-top: 1px solid #b2bec3;">
-                <p style="color: #2d3436; font-size: 0.9em;"><strong>HP: ${card.hp}</strong> Atk: ${card.attack}</p>
+window.openChestSlot = function (idx) {
+    const slot = chestSlots[idx];
+    const el = document.getElementById(`cs-${idx}`);
+    const modal = document.getElementById('chest-modal');
+    const inner = document.getElementById('chest-modal-inner');
+    const FREE = 3;
+    const unlockedCount = chestSlots.filter(s => s.unlocked).length;
+
+    if (slot.unlocked && slot.card) {
+        // Collect card
+        inner.innerHTML = `
+            <div class="chest-m-icon">🎁</div>
+            <div class="chest-m-title">Carte disponible !</div>
+            <div class="chest-m-card">
+                <div style="font-size:2em">${em(slot.card.name)}</div>
+                <div class="chest-m-card-name">${slot.card.name}</div>
+                <div class="chest-m-card-hint">Quiz disponible dans ta collection</div>
             </div>
-            `;
-        }).join('');
-
-        const htmlCards = inventoryContainer.querySelectorAll('.card');
-        htmlCards.forEach((htmlCard) => {
-            htmlCard.addEventListener('click', async () => {
-                const index = htmlCard.getAttribute('data-index');
-                const clickedCard = cards[index];
-
-                if (clickedCard.status === 'locked') {
-                    alert(`🔒 Tu dois trouver la carte ${clickedCard.name} dans un booster d'abord !`);
-                } else if (clickedCard.status === 'pending') {
-                    const confirmQuiz = confirm(`❓ LANCEMENT DU QUIZ ! \n\nEs-tu sûr que la Terre est ronde pour débloquer ${clickedCard.name} ?`);
-                    if (confirmQuiz) {
-                        await fetch('http://localhost:3000/api/win-quiz', {
-                            method: 'POST',
-                            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ cardId: clickedCard.id })
-                        });
-                        alert("✅ Bonne réponse ! Carte prête au combat.");
-                        loadInventory();
-                    }
-                }
-            });
-        });
-    } catch (error) {
-        inventoryContainer.innerHTML = `<p style="color: #ff7675;">Erreur : ${error.message}</p>`;
+            <div class="chest-m-btns">
+                <button class="btn-primary" onclick="collectChest(${idx})">Récupérer !</button>
+                <button class="btn-outline" onclick="closeChestModal()">Fermer</button>
+            </div>`;
+    } else if (!slot.unlocked) {
+        const isFree = unlockedCount < FREE;
+        const cost = isFree ? 0 : 100;
+        const canAfford = isFree || coins >= cost;
+        inner.innerHTML = `
+            <div class="chest-m-icon">📦</div>
+            <div class="chest-m-title">Ouvrir un Booster</div>
+            <div class="chest-m-body">Obtiens une carte aléatoire.<br>Passe ensuite le quiz pour la débloquer !</div>
+            ${cost > 0 ? `<div class="chest-m-cost">🪙 ${cost} pièces</div>` : `<div class="chest-m-cost" style="color:#66bb6a">✨ Gratuit !</div>`}
+            ${!canAfford ? `<div class="chest-m-body" style="color:#ff8a80">Pas assez de pièces ! (${coins}/100 🪙)</div>` : ''}
+            <div class="chest-m-btns">
+                <button class="btn-primary" ${!canAfford ? 'disabled style="opacity:.4"' : ''} onclick="unlockChest(${idx})">Ouvrir</button>
+                <button class="btn-outline" onclick="closeChestModal()">Annuler</button>
+            </div>`;
+    } else {
+        return; // empty, nothing to do
     }
+    modal.style.display = 'flex';
+};
+
+window.unlockChest = async function (idx) {
+    closeChestModal();
+    const r = await api('/api/chest/unlock', { method: 'POST', body: JSON.stringify({ slotIndex: idx }) });
+    if (!r) return;
+    const d = await r.json();
+    if (r.ok) {
+        showToast(`📦 ${d.card.name} obtenu !`, 'success');
+        await loadInventory();
+    } else showToast(d.error, 'error');
+};
+
+window.collectChest = async function (idx) {
+    closeChestModal();
+    const r = await api('/api/chest/collect', { method: 'POST', body: JSON.stringify({ slotIndex: idx }) });
+    if (!r) return;
+    const d = await r.json();
+    if (r.ok) { showToast(d.message, 'success'); await loadInventory(); }
+    else showToast(d.error, 'error');
+};
+
+window.closeChestModal = function () { document.getElementById('chest-modal').style.display = 'none'; };
+
+// ─── INVENTORY / DECK VIEW ──────────────────────────────────────────────────
+function renderDeckView() {
+    // deck grid (3 slots)
+    const grid = document.getElementById('deck-grid');
+    const countLbl = document.getElementById('deck-count-lbl');
+    if (!grid) return;
+    countLbl.innerText = `${myDeck.length}/3`;
+    grid.innerHTML = [0, 1, 2].map(i => {
+        const id = myDeck[i];
+        if (!id) return `<div class="dslot"><span class="dslot-empty-lbl">Slot ${i + 1}</span><span style="font-size:1.4em;opacity:.15">+</span></div>`;
+        const c = inventory.find(x => x.id === id);
+        if (!c) return '';
+        return `<div class="dslot filled" onclick="openCardModal(${c.id})">
+            <button class="dslot-remove" onclick="event.stopPropagation();removeDeckCard(${c.id})">✕</button>
+            <div class="dslot-emoji">${em(c.name)}</div>
+            <div class="dslot-name">${c.name}</div>
+            <div class="dslot-stats">❤️${c.hp} ⚡${c.speed}</div>
+            <div class="dslot-rbar" style="background:${rcol(c.rarity)}"></div>
+        </div>`;
+    }).join('');
+    // inventory below
+    const ig = document.getElementById('inv-grid');
+    if (ig) ig.innerHTML = buildInvCards(inventory);
+    addInvListeners();
 }
 
-// --- SYSTÈME D'AMIS ---
-const friendInput = document.getElementById('friend-input');
-const addFriendBtn = document.getElementById('add-friend-btn');
-const friendsList = document.getElementById('friends-list');
-const friendRequestsList = document.getElementById('friend-requests-list');
+function buildInvCards(cards) {
+    return cards.map(c => {
+        const inDeck = myDeck.includes(c.id);
+        return `<div class="icard ${c.status === 'locked' ? 'ilocked' : ''} ${c.status === 'pending' ? 'ipending' : ''} ${inDeck ? 'ideck' : ''}"
+             onclick="openCardModal(${c.id})">
+            ${c.status === 'locked' ? '<div class="icard-overlay">🔒</div>' : ''}
+            ${c.status === 'pending' ? '<div class="icard-overlay">❓</div>' : ''}
+            ${inDeck ? '<div class="icard-deck-badge">DECK</div>' : ''}
+            <div class="icard-emoji">${em(c.name)}</div>
+            <div class="icard-name">${c.name}</div>
+            <div class="icard-hp">❤️${c.hp}</div>
+            <div class="icard-rbar ${rcl(c.rarity)}"></div>
+        </div>`;
+    }).join('');
+}
 
-addFriendBtn.addEventListener('click', async () => {
-    const targetUsername = friendInput.value.trim();
-    if (!targetUsername) return;
+function addInvListeners() { /* clicks handled via onclick attr */ }
 
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/friends/request', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ targetUsername })
-        });
-        const data = await response.json();
-        alert(data.message || data.error);
-        friendInput.value = '';
-    } catch (err) {
-        console.error(err);
+window.switchCardTab = function (btn, tab) {
+    document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('ctab-deck').style.display = tab === 'deck' ? 'block' : 'none';
+    document.getElementById('ctab-collection').style.display = tab === 'collection' ? 'block' : 'none';
+    if (tab === 'collection') renderCollection();
+};
+
+function renderCollection() {
+    const u = inventory.filter(c => c.status === 'unlocked').length;
+    const p = inventory.filter(c => c.status === 'pending').length;
+    document.getElementById('coll-stats').innerHTML = `
+        <div class="cstat"><div class="cstat-v">${u}</div><div class="cstat-l">Débloquées</div></div>
+        <div class="cstat"><div class="cstat-v">${p}</div><div class="cstat-l">En attente</div></div>
+        <div class="cstat"><div class="cstat-v">${inventory.length}</div><div class="cstat-l">Total</div></div>`;
+    document.getElementById('coll-grid').innerHTML = buildInvCards(inventory);
+}
+
+window.removeDeckCard = async function (id) {
+    myDeck = myDeck.filter(x => x !== id);
+    await api('/api/save-deck', { method: 'POST', body: JSON.stringify({ deck: myDeck }) });
+    renderDeckView(); refreshHome();
+};
+
+window.addDeckCard = async function (id) {
+    if (myDeck.includes(id)) return;
+    if (myDeck.length >= 3) { showToast('Deck plein !', 'error'); return; }
+    myDeck.push(id);
+    await api('/api/save-deck', { method: 'POST', body: JSON.stringify({ deck: myDeck }) });
+    renderDeckView(); refreshHome();
+};
+
+// ─── CARD MODAL ─────────────────────────────────────────────────────────────
+window.openCardModal = function (cardId) {
+    const c = inventory.find(x => x.id === cardId);
+    if (!c) return;
+    const inDeck = myDeck.includes(c.id);
+    let action = '';
+    if (c.status === 'locked') action = `<div class="cmd-locked-msg">🔒 Ouvre un booster pour débloquer cette carte</div>`;
+    else if (c.status === 'pending') action = `<button class="cmd-btn cmd-btn-quiz" onclick="doQuiz(${c.id})">❓ Passer le quiz (+50 XP)</button>`;
+    else if (inDeck) action = `<button class="cmd-btn cmd-btn-remove" onclick="removeDeckCard(${c.id});closeCardModal()">− Retirer du deck</button>`;
+    else if (myDeck.length < 3) action = `<button class="cmd-btn cmd-btn-add" onclick="addDeckCard(${c.id});closeCardModal()">+ Ajouter au deck</button>`;
+    else action = `<div class="cmd-locked-msg">Deck plein (3/3) — retire une carte d'abord</div>`;
+
+    document.getElementById('card-modal-inner').innerHTML = `
+        <div class="cmd-head">
+            <div class="cmd-emoji">${em(c.name)}</div>
+            <div class="cmd-title">
+                <div class="cmd-name">${c.name}</div>
+                <div class="cmd-type">${c.type} · <span style="color:${rcol(c.rarity)};font-weight:900">${c.rarity}</span></div>
+            </div>
+        </div>
+        <div class="cmd-stats-grid">
+            <div class="cmd-stat"><div class="cmd-stat-v">❤️ ${c.hp}</div><div class="cmd-stat-l">PV</div></div>
+            <div class="cmd-stat"><div class="cmd-stat-v">⚔️ ${c.attack}</div><div class="cmd-stat-l">Attaque</div></div>
+            <div class="cmd-stat"><div class="cmd-stat-v">🛡️ ${c.defense}</div><div class="cmd-stat-l">Défense</div></div>
+            <div class="cmd-stat"><div class="cmd-stat-v">⚡ ${c.speed}</div><div class="cmd-stat-l">Vitesse</div></div>
+        </div>
+        ${c.description ? `<div class="cmd-desc">${c.description}</div>` : ''}
+        <div class="cmd-moves">${(c.moves || []).map(m => `
+            <div class="cmd-move ${m.category}">
+                <div class="cmd-move-name">${m.name}</div>
+                <div class="cmd-move-info">${m.power > 0 ? `⚡ Puissance ${m.power}` : '✨ Statut'} · ${m.category}</div>
+            </div>`).join('')}</div>
+        ${action}
+    `;
+    document.getElementById('card-modal').style.display = 'flex';
+};
+window.closeCardModal = function () { document.getElementById('card-modal').style.display = 'none'; };
+
+window.doQuiz = async function (cardId) {
+    closeCardModal();
+    await startQuiz(cardId);
+};
+
+// ─── QUIZ SYSTEM ────────────────────────────────────────────────────────────
+let quizState = null;
+
+async function startQuiz(cardId) {
+    const r = await api(`/api/quiz/start?cardId=${cardId}`);
+    if (!r) return;
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error, 'error'); return; }
+
+    const card = inventory.find(c => c.id === cardId);
+    quizState = {
+        cardId,
+        cardName: card?.name || '?',
+        sessionId: d.sessionId,
+        questions: d.questions,
+        total: d.total,
+        current: 0,
+        scores: [], // true/false per question
+        answered: false
+    };
+
+    renderQuiz();
+    document.getElementById('quiz-modal').style.display = 'flex';
+}
+
+function renderQuiz() {
+    const { questions, current, total, scores, cardId, cardName } = quizState;
+    const card = inventory.find(c => c.id === cardId);
+    const panel = document.getElementById('quiz-panel');
+
+    const progressPct = (current / total) * 100;
+    const letters = ['A', 'B', 'C', 'D'];
+
+    const dotsHtml = Array.from({ length: total }, (_, i) => {
+        let cls = 'pending';
+        if (i < scores.length) cls = scores[i] ? 'correct' : 'wrong';
+        return `<div class="qsd ${cls}"></div>`;
+    }).join('');
+
+    const q = questions[current];
+    const choicesHtml = q.choices.map((c, i) =>
+        `<button class="quiz-choice" data-idx="${i}" onclick="quizAnswer(${i})">
+            <div class="qc-letter">${letters[i]}</div>
+            <div class="qc-text">${c}</div>
+            <div class="qc-icon" id="qc-icon-${i}"></div>
+        </button>`
+    ).join('');
+
+    panel.innerHTML = `
+        <div class="quiz-card-header">
+            <div class="qch-emoji">${em(cardName)}</div>
+            <div class="qch-info">
+                <div class="qch-name">${cardName}</div>
+                <div class="qch-sub">Quiz de déblocage · ${total} questions</div>
+            </div>
+            <button onclick="closeQuiz()" style="background:transparent;color:rgba(255,255,255,.4);font-size:1.3em;padding:4px 8px;">✕</button>
+        </div>
+
+        <div class="quiz-progress-wrap">
+            <div class="quiz-progress-labels">
+                <span>Question ${current + 1}/${total}</span>
+                <span>${scores.filter(Boolean).length} ✓ correctes</span>
+            </div>
+            <div class="quiz-progress-track">
+                <div class="quiz-progress-fill" style="width:${progressPct}%"></div>
+            </div>
+        </div>
+
+        <div class="quiz-score-dots">${dotsHtml}</div>
+
+        <div class="quiz-question-wrap">
+            <div class="quiz-q-num">Question ${current + 1}</div>
+            <div class="quiz-question">${q.question}</div>
+        </div>
+
+        <div class="quiz-choices" id="quiz-choices">${choicesHtml}</div>
+
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+
+        <div class="quiz-next-wrap">
+            <button class="quiz-next" id="quiz-next" onclick="quizNext()">
+                ${current + 1 < total ? 'Question suivante →' : 'Voir les résultats 🏆'}
+            </button>
+        </div>
+    `;
+    quizState.answered = false;
+}
+
+window.quizAnswer = async function (choiceIdx) {
+    if (quizState.answered) return;
+    quizState.answered = true;
+
+    const r = await api('/api/quiz/answer', {
+        method: 'POST',
+        body: JSON.stringify({ sessionId: quizState.sessionId, questionIndex: quizState.current, choiceIndex: choiceIdx })
+    });
+    if (!r) return;
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error, 'error'); return; }
+
+    const { correct, correctAnswer } = d;
+    quizState.scores.push(correct);
+
+    // Lock all buttons
+    document.querySelectorAll('.quiz-choice').forEach(btn => btn.classList.add('locked'));
+
+    // Highlight correct/wrong
+    const btns = document.querySelectorAll('.quiz-choice');
+    btns[correctAnswer].classList.add('correct-ans');
+    btns[correctAnswer].querySelector('.qc-icon').innerText = '✅';
+    if (!correct) {
+        btns[choiceIdx].classList.add('wrong-ans');
+        btns[choiceIdx].querySelector('.qc-icon').innerText = '❌';
     }
-});
 
-async function loadFriends() {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/friends', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) return;
-        const data = await response.json();
+    // Update score dots live
+    const dots = document.querySelectorAll('.qsd');
+    if (dots[quizState.current]) {
+        dots[quizState.current].classList.remove('pending');
+        dots[quizState.current].classList.add(correct ? 'correct' : 'wrong');
+    }
 
-        if (data.friends.length === 0) {
-            friendsList.innerHTML = "Aucun ami pour le moment.";
-        } else {
-            friendsList.innerHTML = data.friends.map(f => `<div class="friend-row"><span>🟢 ${f}</span></div>`).join('');
-        }
+    // Feedback message
+    const fb = document.getElementById('quiz-feedback');
+    if (correct) {
+        fb.className = 'quiz-feedback show ok';
+        const msgs = ['Parfait ! 🎯', 'Excellent ! 🌟', 'Bravo ! 💪', 'Super ! ✨', 'Bien joué ! 🔥'];
+        fb.innerText = msgs[Math.floor(Math.random() * msgs.length)];
+    } else {
+        fb.className = 'quiz-feedback show bad';
+        fb.innerText = `Raté ! La bonne réponse était : "${quizState.questions[quizState.current].choices[correctAnswer]}"`;
+    }
 
-        if (data.requests.length === 0) {
-            friendRequestsList.innerHTML = "Aucune demande.";
-        } else {
-            friendRequestsList.innerHTML = data.requests.map(req => `
-                <div class="friend-row">
-                    <span>${req}</span>
-                    <button onclick="acceptFriend('${req}')">Accepter</button>
+    // Show next button
+    const nextBtn = document.getElementById('quiz-next');
+    nextBtn.classList.add('show');
+};
+
+window.quizNext = async function () {
+    quizState.current++;
+
+    // Si toutes les questions sont répondues → résultats
+    if (quizState.current >= quizState.total) {
+        await showQuizResult();
+        return;
+    }
+    renderQuiz();
+};
+
+async function showQuizResult() {
+    const r = await api('/api/quiz/complete', {
+        method: 'POST',
+        body: JSON.stringify({ sessionId: quizState.sessionId })
+    });
+    if (!r) return;
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error, 'error'); return; }
+
+    const { passed, score, total, xpGain, leveledUp, newLevel } = d;
+    const stars = score >= 5 ? '⭐⭐⭐' : score >= 4 ? '⭐⭐' : score >= 3 ? '⭐' : '';
+
+    const panel = document.getElementById('quiz-panel');
+    if (passed) {
+        panel.innerHTML = `
+            <div class="quiz-result">
+                <div class="qr-emoji">🎉</div>
+                <div class="qr-title" style="color:#f5c518">CARTE DÉBLOQUÉE !</div>
+                <div class="qr-stars">${stars}</div>
+                <div class="qr-score"><b>${score}/${total}</b> bonnes réponses</div>
+                <div class="qr-xp">+${xpGain} XP gagné !${leveledUp ? `<br>🎊 NIVEAU ${newLevel} !` : ''}</div>
+                <div style="font-size:2.5em">${em(quizState.cardName)}</div>
+                <div style="font-family:'Lilita One',cursive;font-size:1.1em;color:#fff">${quizState.cardName}</div>
+                <div style="font-size:.78em;color:rgba(255,255,255,.4);font-weight:700">Disponible dans ton deck !</div>
+                <div class="qr-btns">
+                    <button class="btn-primary" onclick="closeQuiz(true)">Retour à la collection</button>
                 </div>
-            `).join('');
-        }
-    } catch (err) {
-        console.error("Erreur chargement amis", err);
+            </div>`;
+    } else {
+        panel.innerHTML = `
+            <div class="quiz-result">
+                <div class="qr-emoji">😞</div>
+                <div class="qr-title" style="color:#ef5350">Pas tout à fait...</div>
+                <div class="qr-score"><b>${score}/${total}</b> bonnes réponses</div>
+                <div class="qr-fail-hint">Il faut au moins <b>3/5</b> bonnes réponses pour débloquer la carte.<br>Tu peux réessayer quand tu veux !</div>
+                <div class="qr-btns">
+                    <button class="btn-primary" onclick="retryQuiz()">Réessayer 🔄</button>
+                    <button class="btn-outline" onclick="closeQuiz(false)" style="width:100%;padding:12px">Fermer</button>
+                </div>
+            </div>`;
+    }
+
+    if (passed) {
+        await loadInventory();
     }
 }
 
-window.acceptFriend = async function(senderUsername) {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/api/friends/accept', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ senderUsername })
-        });
-        const data = await response.json();
-        alert(data.message || data.error);
-        loadFriends(); 
-    } catch (err) {
-        console.error(err);
+window.retryQuiz = async function () {
+    const cardId = quizState.cardId;
+    await startQuiz(cardId);
+};
+
+window.closeQuiz = function (reload = false) {
+    document.getElementById('quiz-modal').style.display = 'none';
+    quizState = null;
+    if (reload) {
+        loadInventory();
+        goToTab(1);
     }
 };
 
-// -- Démarrage --
-if (localStorage.getItem('token')) { showGameScreen(); } 
-else { showAuthScreen(); }
+// ─── BOUTIQUE ───────────────────────────────────────────────────────────────
+document.getElementById('open-booster-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('open-booster-btn');
+    btn.disabled = true;
+    const r = await api('/api/open-booster', { method: 'POST' });
+    btn.disabled = false;
+    if (!r) return;
+    const d = await r.json();
+    if (r.ok) {
+        const c = d.card;
+        document.getElementById('booster-result').style.display = 'block';
+        document.getElementById('booster-result').innerHTML = `
+            <div style="font-size:2.8em;margin-bottom:8px">${em(c.name)}</div>
+            <div style="font-family:'Lilita One',cursive;font-size:1.2em">${c.name}</div>
+            <div style="font-size:.8em;color:rgba(255,255,255,.5);margin:4px 0">${c.type}</div>
+            <span style="background:${rcol(c.rarity)};color:#fff;padding:2px 10px;border-radius:10px;font-size:.72em;font-weight:900">${c.rarity}</span>
+            <div style="margin-top:10px;font-size:.78em;color:rgba(255,255,255,.5);font-weight:700">❓ Quiz disponible dans ta collection</div>`;
+        showToast(`📦 ${c.name} obtenu !`, 'success');
+        await loadInventory();
+    } else showToast(d.error, 'error');
+});
+
+// ─── SOCIAL ─────────────────────────────────────────────────────────────────
+let friendsCache = [], searchT;
+document.getElementById('search-input').addEventListener('input', e => {
+    clearTimeout(searchT);
+    const q = e.target.value.trim();
+    if (q.length < 2) { document.getElementById('search-results').innerHTML = ''; return; }
+    searchT = setTimeout(() => searchPlayers(q), 350);
+});
+
+async function searchPlayers(q) {
+    const r = await api(`/api/search-player?q=${encodeURIComponent(q)}`);
+    if (!r || !r.ok) return;
+    const { results } = await r.json();
+    const myF = friendsCache.map(f => f.username);
+    document.getElementById('search-results').innerHTML = results.length === 0
+        ? '<span class="empty-hint">Aucun résultat</span>'
+        : results.map(p => `<div class="pr-row">
+            <div class="pr-info"><span class="pr-name"><span class="${p.isOnline ? 'dot-on' : 'dot-off'}"></span>${p.username}</span><span class="pr-meta">Nv.${p.level} · ${p.wins}V</span></div>
+            <div class="pr-actions">${myF.includes(p.username) ? '<span style="color:#66bb6a;font-size:.8em;font-weight:800">✓ Ami</span>' : `<button class="btn-sm btn-green" onclick="sendFReq('${p.username}')">+ Ajouter</button>`}</div>
+        </div>`).join('');
+}
+
+async function loadFriends() {
+    const r = await api('/api/friends');
+    if (!r || !r.ok) return;
+    const d = await r.json();
+    friendsCache = d.friends || [];
+    const reqBox = document.getElementById('requests-box');
+    if (d.requests?.length > 0) {
+        reqBox.style.display = 'block';
+        document.getElementById('req-count').innerText = d.requests.length;
+        document.getElementById('friend-requests-list').innerHTML = d.requests.map(req => `
+            <div class="pr-row"><div class="pr-info"><span class="pr-name">${req}</span><span class="pr-meta">Demande d'ami</span></div>
+            <div class="pr-actions"><button class="btn-sm btn-green" onclick="acceptFReq('${req}')">✓</button><button class="btn-sm btn-red" onclick="rejectFReq('${req}')">✕</button></div></div>`).join('');
+    } else reqBox.style.display = 'none';
+    document.getElementById('friends-list').innerHTML = d.friends.length === 0
+        ? '<span class="empty-hint">Aucun ami. Recherche des joueurs !</span>'
+        : d.friends.map(f => `<div class="pr-row">
+            <div class="pr-info"><span class="pr-name"><span class="${f.isOnline ? 'dot-on' : 'dot-off'}"></span>${f.username}</span><span class="pr-meta">Nv.${f.level} · ${f.wins}V</span></div>
+            <button class="btn-sm btn-grey" onclick="removeFriend('${f.username}')">Retirer</button></div>`).join('');
+}
+
+window.sendFReq = async u => { const r = await api('/api/friends/request', { method: 'POST', body: JSON.stringify({ targetUsername: u }) }); if (r) { const d = await r.json(); showToast(r.ok ? d.message : d.error, r.ok ? 'success' : 'error'); } };
+window.acceptFReq = async u => { const r = await api('/api/friends/accept', { method: 'POST', body: JSON.stringify({ senderUsername: u }) }); if (r && r.ok) { showToast('Ami ajouté 🎉', 'success'); loadFriends(); } };
+window.rejectFReq = async u => { await api('/api/friends/reject', { method: 'POST', body: JSON.stringify({ senderUsername: u }) }); loadFriends(); };
+window.removeFriend = async u => { if (!confirm(`Retirer ${u} ?`)) return; await api('/api/friends/remove', { method: 'POST', body: JSON.stringify({ friendUsername: u }) }); loadFriends(); };
+
+// ─── SCOREBOARD ─────────────────────────────────────────────────────────────
+let sbData = [], sbSort = 'level';
+document.querySelectorAll('.rpill').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.rpill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); sbSort = btn.dataset.sort; renderScoreboard();
+    });
+});
+async function loadScoreboard() {
+    document.getElementById('scoreboard').innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,.3);font-weight:800">Chargement...</div>';
+    const r = await api('/api/scoreboard');
+    if (!r || !r.ok) return;
+    const d = await r.json();
+    sbData = d.scoreboard; window._me = d.currentUser; renderScoreboard();
+}
+function renderScoreboard() {
+    const sorted = [...sbData].sort((a, b) => sbSort === 'level' ? b.level - a.level || b.wins - a.wins : sbSort === 'wins' ? b.wins - a.wins : sbSort === 'winRate' ? b.winRate - a.winRate : b.totalCards - a.totalCards);
+    const M = ['🥇', '🥈', '🥉'];
+    document.getElementById('scoreboard').innerHTML = sorted.map((p, i) => {
+        const me = p.username === window._me;
+        const cl = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+        return `<div class="sc-row ${cl} ${me ? 'me' : ''}">
+            ${i < 3 ? `<div class="sc-medal">${M[i]}</div>` : `<div class="sc-num">#${i + 1}</div>`}
+            <div class="sc-info"><div class="sc-name">${p.username}${me ? ' <span style="color:#42a5f5;font-size:.72em">(toi)</span>' : ''}</div>
+            <div class="sc-sub">Nv.${p.level} · ${p.totalCards} cartes · ${p.winRate}% WR</div></div>
+            <div class="sc-wl"><div class="sc-w">${p.wins}V</div><div class="sc-l">${p.losses}D</div></div>
+        </div>`;
+    }).join('');
+}
+
+// ─── SOCKET / COMBAT ────────────────────────────────────────────────────────
+
+function initSocket() {
+    if (socket) return;
+    socket = io(API, { auth: { token: getToken() } });
+    socket.on('connect_error', err => { if (err.message.includes('Token')) { localStorage.clear(); location.reload(); } });
+    socket.on('matchmaking_error', d => { document.getElementById('mm-overlay').style.display = 'none'; showToast(d.message, 'error'); });
+    socket.on('match_state', d => {
+        opponent = d.opponent;
+        document.getElementById('mm-overlay').style.display = 'none';
+        gameScreen.style.display = 'none';
+        const cs = document.getElementById('combat-screen');
+        cs.style.display = 'flex';
+        document.getElementById('enemy-name').innerText = '⚔️ ' + d.opponent;
+        document.getElementById('cbt-log').innerHTML = `Duel vs <b>${d.opponent}</b> ! Choisis ton attaque !`;
+        updateBoard(d);
+    });
+    socket.on('turn_result', d => {
+        document.getElementById('cbt-log').innerHTML = d.logs.join('<br>');
+        updateBoard(d.state);
+        if (!d.isOver) setTimeout(() => { document.getElementById('cbt-log').innerHTML += '<br><em style="color:rgba(0,0,0,.4)">Attaque !</em>'; }, 750);
+    });
+    socket.on('match_end', d => showEndModal(d));
+    socket.on('friend_request', d => { showToast(`📨 ${d.from} t'a envoyé une demande !`, 'info'); });
+    socket.on('friend_accepted', d => { showToast(`✅ ${d.by} a accepté ta demande !`, 'success'); });
+}
+
+// ─── COMBAT BOARD ───────────────────────────────────────────────────────────
+const TYPE_COLOR = { Mammifère: '#8d6e63', Poisson: '#29b6f6', Reptile: '#66bb6a', Oiseau: '#ffca28' };
+function tc(card) { return TYPE_COLOR[card.type] || '#9e9e9e'; }
+function hpClass(cur, max) { const p = cur / max; return p > .5 ? '' : p > .25 ? 'mid' : 'low'; }
+
+function bigCard(card, isActive) {
+    if (!card) return '';
+    const ko = card.currentHp <= 0;
+    const pct = Math.max(0, (card.currentHp / card.hp) * 100);
+    return `<div class="cbt-card ${isActive ? 'active-card' : ''} ${ko ? 'ko-card' : ''}">
+        <div class="cbt-card-type-stripe" style="background:${tc(card)}"></div>
+        <div class="cbt-card-emoji">${em(card.name)}</div>
+        <div class="cbt-card-name">${card.name}</div>
+        <div class="cbt-hp-wrap">
+            <div class="cbt-hp-bar"><div class="cbt-hp-fill ${hpClass(card.currentHp, card.hp)}" style="width:${pct}%"></div></div>
+            <div class="cbt-hp-txt">${card.currentHp}/${card.hp}</div>
+        </div>
+    </div>`;
+}
+
+function benchCard(card) {
+    if (!card) return '';
+    const ko = card.currentHp <= 0;
+    const pct = Math.max(0, (card.currentHp / card.hp) * 100);
+    return `<div class="cbt-bench-card ${ko ? 'ko-card' : ''}">
+        <div class="cbt-card-type-stripe" style="background:${tc(card)}"></div>
+        <div class="cbt-card-emoji">${em(card.name)}</div>
+        <div class="cbt-card-name">${card.name}</div>
+        <div class="cbt-hp-wrap">
+            <div class="cbt-hp-bar"><div class="cbt-hp-fill ${hpClass(card.currentHp, card.hp)}" style="width:${pct}%"></div></div>
+            <div class="cbt-hp-txt">${card.currentHp}/${card.hp}</div>
+        </div>
+    </div>`;
+}
+
+function updateBoard(state) {
+    const pts = n => '🔴'.repeat(Math.max(0, n)) + '⚪'.repeat(Math.max(0, 3 - n));
+    document.getElementById('player-pts').innerText = pts(state.myPoints);
+    document.getElementById('enemy-pts').innerText = pts(state.enemyPoints);
+
+    document.getElementById('enemy-active').innerHTML = bigCard(state.enemyCards[state.enemyActiveIndex], true);
+    document.getElementById('enemy-bench').innerHTML = state.enemyCards.map((c, i) => i !== state.enemyActiveIndex ? benchCard(c) : '').join('');
+    document.getElementById('player-active').innerHTML = bigCard(state.myCards[state.myActiveIndex], true);
+    document.getElementById('player-bench').innerHTML = state.myCards.map((c, i) => i !== state.myActiveIndex ? benchCard(c) : '').join('');
+
+    const acts = document.getElementById('cbt-actions');
+    const myActive = state.myCards[state.myActiveIndex];
+    if (myActive && myActive.currentHp > 0) {
+        acts.style.display = 'grid';
+        acts.innerHTML = myActive.moves.map((m, i) => `
+            <button class="cbt-atk-btn ${m.category}" data-move="${i}">
+                <div class="atk-name">${m.name}</div>
+                <div class="atk-info">${m.power > 0 ? `⚡ ${m.power}` : '✨ Statut'} · ${m.category}</div>
+            </button>`).join('');
+        acts.querySelectorAll('.cbt-atk-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                socket.emit('play_turn', { moveIndex: btn.dataset.move });
+                acts.style.display = 'none';
+                document.getElementById('cbt-log').innerHTML = '⏳ En attente...';
+            });
+        });
+    } else acts.style.display = 'none';
+}
+
+// ─── END MODAL ──────────────────────────────────────────────────────────────
+function showEndModal(data) {
+    const me = localStorage.getItem('username');
+    const win = data.winner === me;
+    const xp = data.xpStats?.[me];
+    const coins = data.xpStats?.[me]?.coinGain;
+
+    document.getElementById('end-emoji').innerText = win ? '🏆' : '💀';
+    const t = document.getElementById('end-title');
+    t.innerText = win ? 'VICTOIRE !' : 'DÉFAITE';
+    t.style.color = win ? '#f5c518' : '#e53935';
+    document.getElementById('end-reason').innerText = data.reason || '';
+
+    let html = '';
+    if (xp) html += `<div class="reward-xp">+${xp.xpGain} XP${xp.leveledUp ? `<br>🎉 NIVEAU ${xp.newLevel} !` : ''}</div>`;
+    if (coins) html += `<div class="reward-coins">+${coins} 🪙 pièces</div>`;
+    if (win && data.boosterReward) {
+        html += `<div class="reward-booster"><div class="rb-label">🎴 Booster gagné !</div><div class="rb-name">${em(data.boosterReward.name)} ${data.boosterReward.name}</div><div class="rb-hint">Quiz dans ta collection</div></div>`;
+    }
+    document.getElementById('end-rewards').innerHTML = html;
+
+    document.getElementById('combat-screen').style.display = 'none';
+    document.getElementById('end-modal').style.display = 'flex';
+}
+
+document.getElementById('end-close').addEventListener('click', () => {
+    document.getElementById('end-modal').style.display = 'none';
+    gameScreen.style.display = 'flex';
+    loadInventory();
+    goToTab(0);
+});
+
+// ─── BATTLE BUTTONS ─────────────────────────────────────────────────────────
+document.getElementById('battle-btn').addEventListener('click', () => {
+    if (playerLevel < 2) return showToast('🔒 Niveau 2 requis !', 'error');
+    if (!socket) return showToast('Connexion impossible', 'error');
+    if (myDeck.length < 3) return showToast('3 cartes requises !', 'error');
+    document.getElementById('mm-overlay').style.display = 'flex';
+    document.getElementById('mm-status').innerText = "Recherche d'un adversaire...";
+    socket.emit('find_match');
+});
+document.getElementById('mm-cancel').addEventListener('click', () => {
+    if (socket) socket.emit('cancel_match');
+    document.getElementById('mm-overlay').style.display = 'none';
+});
+document.getElementById('surrender-btn').addEventListener('click', () => {
+    if (!confirm(`Abandonner ? ${opponent} gagnera.`)) return;
+    if (socket) socket.emit('surrender');
+});

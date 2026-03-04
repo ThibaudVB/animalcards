@@ -1,30 +1,103 @@
 [
   {
-    "id": "e4620926-39f8-4822-b143-c6ce469d6638",
+    "id": "d318843b-203c-4812-90e3-5e69fa94b22b",
     "username": "ThibaudVB",
-    "password": "e97a24c9d495be206f773139f1fa29cb:96117d9506d868601bb44c0be6c35749b855fc8c4bfe4acc8fd51fcdda83ff3173f34e78bf649e8c6c2a407d425381bfc524eaf09474b114f3336ad031acd999",
+    "password": "02f1e86a8b17eae79c49b53c5f883e74:1210c9a34f8cf10ae48bd72ee1ebd99ae36fb3540d1153c96ddbc93dee0aa6a372c97409aeb3436f590bbfc6052638c06a8a7ff7e9b7e863acd786c206b53bca",
+    "unlockedCards": [
+      1,
+      3,
+      2,
+      11,
+      12,
+      15
+    ],
+    "pendingCards": [
+      14,
+      18,
+      8,
+      6,
+      9
+    ],
+    "friends": [
+      "Amélix"
+    ],
+    "friendRequests": [],
+    "deck": [
+      2,
+      11,
+      15
+    ],
+    "level": 3,
+    "xp": 260,
+    "stats": {
+      "wins": 2,
+      "losses": 2
+    },
+    "chestSlots": [
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "coins": 150
+  },
+  {
+    "id": "c385a185-3cfa-4cb3-a6c1-b251c0602218",
+    "username": "Amélix",
+    "password": "4c02bccc80ca845419e0e4db9f5c2f64:dc1edacb90b23bbb805628f6e9c856c8d313849410aee55c793abb37c1dc0b1d5754d740449ac36cd5c5060c3c88a3d3d2c8a80fbad6972b1d4790726bd5f450",
     "unlockedCards": [
       1,
       2,
       3
     ],
-    "pendingCards": [],
-    "friends": [
-      "Amélie"
+    "pendingCards": [
+      11
     ],
-    "friendRequests": []
-  },
-  {
-    "id": "d17d9398-ef31-4e92-b1ad-6164daec3428",
-    "username": "Amélie",
-    "password": "93fb49d1fabc2e5e061ff2c8ea60a82e:984b1772027651a1347a44a246c4e48524016145f6fddc1d2c3f072555908292cda7ad887c9be5c6e02243c8103403822dcef41096b2297c026ed5f6be033606",
-    "unlockedCards": [
-      1
-    ],
-    "pendingCards": [],
     "friends": [
       "ThibaudVB"
     ],
-    "friendRequests": []
+    "friendRequests": [],
+    "deck": [
+      1,
+      2,
+      3
+    ],
+    "level": 3,
+    "xp": 100,
+    "stats": {
+      "wins": 2,
+      "losses": 2
+    },
+    "chestSlots": [
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "coins": 150
   }
 ]
