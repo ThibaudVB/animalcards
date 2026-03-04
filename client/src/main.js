@@ -1,5 +1,5 @@
 // -- Éléments du DOM --
-const authCard = document.getElementById('auth-card');
+const authContainer = document.getElementById('auth-container');
 const gameContainer = document.getElementById('game-container');
 const formTitle = document.getElementById('form-title');
 const usernameInput = document.getElementById('username');
@@ -8,21 +8,37 @@ const errorMsg = document.getElementById('error-msg');
 const submitBtn = document.getElementById('submit-btn');
 const toggleLink = document.getElementById('toggle-link');
 const logoutBtn = document.getElementById('logout-btn');
+const displayUsername = document.getElementById('display-username');
+
 const inventoryContainer = document.getElementById('inventory');
 const openBoosterBtn = document.getElementById('open-booster-btn');
 
-let isLogin = true;
+// --- LOGIQUE DE NAVIGATION (SLIDER) ---
+const navBtns = document.querySelectorAll('.nav-btn');
+const slider = document.getElementById('slider');
 
-// -- Bascule Login / Register --
-toggleLink.addEventListener('click', () => {
-    isLogin = !isLogin;
-    formTitle.innerText = isLogin ? 'Login' : 'Register';
-    submitBtn.innerText = isLogin ? 'Login' : 'Register';
-    toggleLink.innerText = isLogin ? "Don't have an account? Register" : "Already have an account? Login";
-    errorMsg.innerText = '';
+// Fonction pour faire glisser vers un panel (0 = Boutique, 1 = Cartes, 2 = Combat, 3 = Social)
+function goToTab(index) {
+    slider.style.transform = `translateX(-${index * 100}vw)`;
+    navBtns.forEach(btn => btn.classList.remove('active'));
+    navBtns[index].classList.add('active');
+}
+
+navBtns.forEach((btn, index) => {
+    btn.addEventListener('click', () => goToTab(index));
 });
 
 // -- Gérer l'authentification --
+let isLogin = true;
+
+toggleLink.addEventListener('click', () => {
+    isLogin = !isLogin;
+    formTitle.innerText = isLogin ? 'Login' : 'Register';
+    submitBtn.innerText = isLogin ? 'Connexion' : 'S\'inscrire';
+    toggleLink.innerText = isLogin ? "Pas de compte ? S'inscrire" : "Déjà un compte ? Connexion";
+    errorMsg.innerText = '';
+});
+
 submitBtn.addEventListener('click', async () => {
     const username = usernameInput.value;
     const password = passwordInput.value;
@@ -49,7 +65,6 @@ submitBtn.addEventListener('click', async () => {
     }
 });
 
-// -- Déconnexion --
 logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -58,15 +73,21 @@ logoutBtn.addEventListener('click', () => {
 
 // -- Affichage des écrans --
 function showAuthScreen() {
-    authCard.style.display = 'block';
+    authContainer.style.display = 'flex';
     gameContainer.style.display = 'none';
     usernameInput.value = '';
     passwordInput.value = '';
 }
 
 function showGameScreen() {
-    authCard.style.display = 'none';
+    authContainer.style.display = 'none';
     gameContainer.style.display = 'flex';
+    displayUsername.innerText = localStorage.getItem('username'); // Affiche le pseudo en haut
+    
+    // On centre la vue sur l'onglet 2 (Combat) par défaut !
+    goToTab(2); 
+    
+    // On charge les données
     loadInventory(); 
     loadFriends();
 }
@@ -81,10 +102,9 @@ openBoosterBtn.addEventListener('click', async () => {
         });
         
         const data = await response.json();
-        
         if (response.ok) {
-            alert(`📦 WOUAH ! Tu as obtenu la carte : ${data.card.name} ! Mais attention, elle est bloquée... Réponds au quiz pour l'utiliser !`);
-            loadInventory(); // On recharge les cartes
+            alert(`📦 WOUAH ! Tu as obtenu : ${data.card.name} ! \nVa dans l'onglet Cartes pour la débloquer.`);
+            loadInventory(); 
         } else {
             alert(data.error); 
         }
@@ -93,7 +113,7 @@ openBoosterBtn.addEventListener('click', async () => {
     }
 });
 
-// -- Fonction de ton inventaire (UNE SEULE FOIS !) --
+// -- INVENTAIRE --
 async function loadInventory() {
     try {
         const token = localStorage.getItem('token');
@@ -106,8 +126,6 @@ async function loadInventory() {
 
         inventoryContainer.innerHTML = cards.map((card, index) => {
             const rarityClass = card.rarity ? card.rarity.toLowerCase() : 'commun';
-            
-            // On gère les 3 états
             let statusClass = '';
             let centerIcon = '';
             
@@ -122,18 +140,15 @@ async function loadInventory() {
             return `
             <div class="card ${rarityClass} ${statusClass}" data-index="${index}">
                 ${centerIcon}
-                <h3>${card.name}</h3>
-                <p style="color: gray; margin-top: -10px;"><em>${card.type}</em></p>
-                <hr style="border: 0; border-top: 1px solid #eee;">
-                <p><strong>HP: ${card.hp}</strong> 🗡️ Atk: ${card.attack}</p>
-                <p style="font-size: 0.8em; color: #555; margin-top: 10px;">${card.description}</p>
+                <h3 style="color: #2d3436;">${card.name}</h3>
+                <p style="color: #636e72; margin-top: -10px; font-size: 0.9em;"><em>${card.type}</em></p>
+                <hr style="border: 0; border-top: 1px solid #b2bec3;">
+                <p style="color: #2d3436; font-size: 0.9em;"><strong>HP: ${card.hp}</strong> Atk: ${card.attack}</p>
             </div>
             `;
         }).join('');
 
-        // Ajout des événements de clic sur les cartes
         const htmlCards = inventoryContainer.querySelectorAll('.card');
-        
         htmlCards.forEach((htmlCard) => {
             htmlCard.addEventListener('click', async () => {
                 const index = htmlCard.getAttribute('data-index');
@@ -141,32 +156,22 @@ async function loadInventory() {
 
                 if (clickedCard.status === 'locked') {
                     alert(`🔒 Tu dois trouver la carte ${clickedCard.name} dans un booster d'abord !`);
-                
                 } else if (clickedCard.status === 'pending') {
                     const confirmQuiz = confirm(`❓ LANCEMENT DU QUIZ ! \n\nEs-tu sûr que la Terre est ronde pour débloquer ${clickedCard.name} ?`);
-                    
                     if (confirmQuiz) {
                         await fetch('http://localhost:3000/api/win-quiz', {
                             method: 'POST',
-                            headers: { 
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
+                            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                             body: JSON.stringify({ cardId: clickedCard.id })
                         });
-                        alert("✅ Bonne réponse ! La carte est débloquée et prête à combattre !");
-                        loadInventory(); // On met à jour l'affichage
+                        alert("✅ Bonne réponse ! Carte prête au combat.");
+                        loadInventory();
                     }
-                
-                } else if (clickedCard.status === 'unlocked') {
-                    console.log(`⚔️ Tu as sélectionné la carte prête au combat : ${clickedCard.name}`);
                 }
             });
         });
-
     } catch (error) {
-        console.error("Erreur de chargement de l'inventaire:", error);
-        inventoryContainer.innerHTML = `<p style="color: red;">Erreur : ${error.message}</p>`;
+        inventoryContainer.innerHTML = `<p style="color: #ff7675;">Erreur : ${error.message}</p>`;
     }
 }
 
@@ -176,7 +181,6 @@ const addFriendBtn = document.getElementById('add-friend-btn');
 const friendsList = document.getElementById('friends-list');
 const friendRequestsList = document.getElementById('friend-requests-list');
 
-// 1. Envoyer une demande
 addFriendBtn.addEventListener('click', async () => {
     const targetUsername = friendInput.value.trim();
     if (!targetUsername) return;
@@ -185,13 +189,9 @@ addFriendBtn.addEventListener('click', async () => {
         const token = localStorage.getItem('token');
         const response = await fetch('http://localhost:3000/api/friends/request', {
             method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ targetUsername })
         });
-        
         const data = await response.json();
         alert(data.message || data.error);
         friendInput.value = '';
@@ -200,34 +200,28 @@ addFriendBtn.addEventListener('click', async () => {
     }
 });
 
-// 2. Charger les amis et les requêtes
 async function loadFriends() {
     try {
         const token = localStorage.getItem('token');
         const response = await fetch('http://localhost:3000/api/friends', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        
         if (!response.ok) return;
         const data = await response.json();
 
-        // Afficher les amis
         if (data.friends.length === 0) {
             friendsList.innerHTML = "Aucun ami pour le moment.";
         } else {
-            friendsList.innerHTML = data.friends.map(f => 
-                `<div style="padding: 5px; border-bottom: 1px solid #eee;">🟢 ${f}</div>`
-            ).join('');
+            friendsList.innerHTML = data.friends.map(f => `<div class="friend-row"><span>🟢 ${f}</span></div>`).join('');
         }
 
-        // Afficher les demandes en attente
         if (data.requests.length === 0) {
             friendRequestsList.innerHTML = "Aucune demande.";
         } else {
             friendRequestsList.innerHTML = data.requests.map(req => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #eee;">
+                <div class="friend-row">
                     <span>${req}</span>
-                    <button onclick="acceptFriend('${req}')" style="background: #3498db; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer;">Accepter</button>
+                    <button onclick="acceptFriend('${req}')">Accepter</button>
                 </div>
             `).join('');
         }
@@ -236,30 +230,22 @@ async function loadFriends() {
     }
 }
 
-// 3. Accepter un ami (Attaché à window comme pour les alertes)
 window.acceptFriend = async function(senderUsername) {
     try {
         const token = localStorage.getItem('token');
         const response = await fetch('http://localhost:3000/api/friends/accept', {
             method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ senderUsername })
         });
-        
         const data = await response.json();
         alert(data.message || data.error);
-        loadFriends(); // On rafraîchit la liste
+        loadFriends(); 
     } catch (err) {
         console.error(err);
     }
 };
 
-// -- Vérification auto au chargement de la page --
-if (localStorage.getItem('token')) {
-    showGameScreen();
-} else {
-    showAuthScreen();
-}
+// -- Démarrage --
+if (localStorage.getItem('token')) { showGameScreen(); } 
+else { showAuthScreen(); }
