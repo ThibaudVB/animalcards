@@ -99,5 +99,153 @@
       }
     ],
     "coins": 150
+  },
+  {
+    "id": "6c7dc4c0-997d-4604-91a1-50040361094d",
+    "username": "Ameme",
+    "password": "a90663fe1a92cf5dd54ee093bb88e327:d916b8a365f30ee8b2df5e4a4a38cf19282118bf28e3bbb64b3ee456f5cc2b1bd9edd26997acc49fbd0c5432cccb5ada50b669ccf265a6eeba1e416f3d2bff98",
+    "unlockedCards": [
+      1
+    ],
+    "pendingCards": [
+      5,
+      10,
+      2,
+      17,
+      14,
+      12
+    ],
+    "friends": [],
+    "friendRequests": [],
+    "deck": [],
+    "level": 1,
+    "xp": 0,
+    "coins": 150,
+    "stats": {
+      "wins": 0,
+      "losses": 0
+    },
+    "chestSlots": [
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "freeBoostersLeft": 0,
+    "boostersBoughtWithWins": 0,
+    "createdAt": "2026-03-05T11:59:35.102Z"
+  },
+  {
+    "id": "b0442322-dd16-4fd2-859b-557854366882",
+    "username": "aaa",
+    "password": "3f3081f54f2c38b164485b5bf79eaed4:85270bb943f5ef828ad4b268a51309ee3eb5e38451ab00a7442c97ab344ab615319e972f2420f157072d944f63b76991b1fa611ee128069e013e4e9b4bcf8ffb",
+    "unlockedCards": [
+      1,
+      8,
+      18
+    ],
+    "pendingCards": [
+      11
+    ],
+    "friends": [],
+    "friendRequests": [],
+    "deck": [
+      1,
+      8,
+      18
+    ],
+    "level": 2,
+    "xp": 140,
+    "coins": 270,
+    "stats": {
+      "wins": 1,
+      "losses": 0
+    },
+    "chestSlots": [
+      {
+        "unlocked": true,
+        "card": {
+          "id": 15,
+          "name": "Hibou Grand-Duc",
+          "rarity": "commun",
+          "type": "Oiseau"
+        }
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "freeBoostersLeft": 0,
+    "boostersBoughtWithWins": 0,
+    "createdAt": "2026-03-05T13:45:07.925Z"
+  },
+  {
+    "id": "0e0970f2-4a1d-45eb-9ed3-300669fba6c6",
+    "username": "test",
+    "password": "cdf45c13bf6067a75efe6542d2f9e851:70705271b540d56b2b6e216c408085f81059b94844a8fe37888e33d1f2aa5665b6ecc8feda097009af946d9e53abf97a4f8932d43d2b00b7bd2792dbc59809b6",
+    "unlockedCards": [
+      1,
+      5,
+      16
+    ],
+    "pendingCards": [
+      6
+    ],
+    "friends": [],
+    "friendRequests": [],
+    "deck": [
+      1,
+      5,
+      16
+    ],
+    "level": 2,
+    "xp": 70,
+    "coins": 180,
+    "stats": {
+      "wins": 0,
+      "losses": 1
+    },
+    "chestSlots": [
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "freeBoostersLeft": 0,
+    "boostersBoughtWithWins": 0,
+    "createdAt": "2026-03-05T14:50:25.888Z"
   }
 ]

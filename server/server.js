@@ -86,6 +86,8 @@ app.post('/register', (req, res) => {
             { unlocked: false, card: null },
             { unlocked: false, card: null }
         ],
+        freeBoostersLeft: 3,
+        boostersBoughtWithWins: 0,
         createdAt: new Date().toISOString()
     };
     const users = readUsers(); users.push(user); writeUsers(users);
@@ -116,7 +118,9 @@ app.get('/api/inventory', auth, (req, res) => {
         level: user.level || 1, xp: user.xp || 0, xpNeeded: (user.level || 1) * 100,
         coins: user.coins || 0,
         stats: user.stats || { wins: 0, losses: 0 },
-        chestSlots: user.chestSlots
+        chestSlots: user.chestSlots,
+        freeBoostersLeft: user.freeBoostersLeft ?? 0,
+        winsBoostersAvailable: Math.floor((user.stats?.wins || 0) / 5) - (user.boostersBoughtWithWins || 0)
     });
 });
 
@@ -200,17 +204,58 @@ app.post('/api/open-booster', auth, (req, res) => {
     const user = users.find(u => u.username === req.user.username);
     if (!user) return res.status(404).json({ error: 'Introuvable' });
     initChests(user);
+
+    // Init freeBoostersLeft si absent (anciens comptes)
+    if (user.freeBoostersLeft === undefined) user.freeBoostersLeft = 0;
+
+    const wins = user.stats?.wins || 0;
+    const boostersBoughtWithWins = user.boostersBoughtWithWins || 0;
+    const winsBoostersAvailable = Math.floor(wins / 5) - boostersBoughtWithWins;
+
+    const canOpenFree = user.freeBoostersLeft > 0;
+    const canOpenWin = winsBoostersAvailable > 0;
+    const canOpenPaid = (req.body.buyWithCoins === true) && (user.coins || 0) >= 1000;
+
+    if (!canOpenFree && !canOpenWin && !canOpenPaid) {
+        return res.status(400).json({
+            error: 'Aucun booster disponible.',
+            freeBoostersLeft: user.freeBoostersLeft,
+            winsBoostersAvailable,
+            coins: user.coins
+        });
+    }
+
     const allCards = JSON.parse(fs.readFileSync(cardsPath, 'utf8'));
     const unlockedNums = (user.unlockedCards || []).map(Number);
     const pendingNums  = (user.pendingCards  || []).map(Number);
     const available = allCards.filter(c => !unlockedNums.includes(c.id) && !pendingNums.includes(c.id));
     if (available.length === 0) return res.status(400).json({ error: 'Toutes les cartes déjà obtenues !' });
+
     const card = available[Math.floor(Math.random() * available.length)];
-    user.pendingCards = pendingNums;          // normalise en nombres
+    user.pendingCards = pendingNums;
     user.unlockedCards = unlockedNums;
-    user.pendingCards.push(card.id);          // card.id est déjà un number
+    user.pendingCards.push(card.id);
+
+    // Déduire la source utilisée (priorité : gratuit > victoires > pièces)
+    let source = '';
+    if (canOpenFree) {
+        user.freeBoostersLeft--;
+        source = 'free';
+    } else if (canOpenWin) {
+        user.boostersBoughtWithWins = boostersBoughtWithWins + 1;
+        source = 'wins';
+    } else {
+        user.coins -= 1000;
+        source = 'coins';
+    }
+
     writeUsers(users);
-    res.json({ card });
+    res.json({
+        card, source,
+        freeBoostersLeft: user.freeBoostersLeft,
+        winsBoostersAvailable: Math.floor((user.stats?.wins || 0) / 5) - (user.boostersBoughtWithWins || 0),
+        coins: user.coins
+    });
 });
 
 // ─── QUIZ ──────────────────────────────────────────────────────────────────

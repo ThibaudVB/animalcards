@@ -1,9 +1,10 @@
 import { io } from 'socket.io-client';
 const API = 'http://localhost:3000';
 
-// ─── STATE (déclaré en premier pour éviter les ReferenceError TDZ) ─────────
-let myDeck = [], inventory = [], playerLevel = 1, coins = 0, chestSlots = [];
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let myDeck = [], inventory = [], playerLevel = 1, coins = 0;
 let socket = null, opponent = '';
+let boosterAvailability = { freeBoostersLeft: 0, winsBoostersAvailable: 0, winsTotal: 0 };
 
 // ─── UTILS ─────────────────────────────────────────────────────────────────
 const getToken = () => localStorage.getItem('token');
@@ -49,12 +50,14 @@ function goToTab(idx, smooth = true) {
     navBtns.forEach((b, i) => b.classList.toggle('active', i === idx));
     if (idx === 0) refreshHome();
     if (idx === 1) renderDeckView();
+    if (idx === 2) renderBoutiqueState();
     if (idx === 3) loadFriends();
     if (idx === 4) loadScoreboard();
 }
+window.goToTab = goToTab;
+
 navBtns.forEach((btn, i) => btn.addEventListener('click', () => goToTab(i)));
 
-// Touch swipe
 viewport.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
@@ -64,11 +67,8 @@ viewport.addEventListener('touchstart', e => {
 viewport.addEventListener('touchmove', e => {
     const dx = e.touches[0].clientX - touchStartX;
     const dy = e.touches[0].clientY - touchStartY;
-    if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
-        isSwiping = true;
-    }
+    if (!isSwiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) isSwiping = true;
     if (isSwiping) {
-        // Live drag feedback
         const offset = -(currentTab * 20) + (dx / window.innerWidth) * 100 / 5;
         slider.style.transition = 'none';
         slider.style.transform = `translateX(${offset}%)`;
@@ -80,7 +80,7 @@ viewport.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - touchStartX;
     if (dx < -50 && currentTab < 4) goToTab(currentTab + 1);
     else if (dx > 50 && currentTab > 0) goToTab(currentTab - 1);
-    else goToTab(currentTab); // snap back
+    else goToTab(currentTab);
     isSwiping = false;
 }, { passive: true });
 
@@ -145,16 +145,43 @@ async function loadInventory() {
     myDeck = d.deck;
     playerLevel = d.level;
     coins = d.coins ?? 0;
-    chestSlots = d.chestSlots || [];
     updateTopBar(d);
-    renderChestSlots();
+
+    boosterAvailability = {
+        freeBoostersLeft: d.freeBoostersLeft ?? 0,
+        winsBoostersAvailable: d.winsBoostersAvailable ?? 0,
+        winsTotal: d.stats?.wins || 0
+    };
+
     renderDeckView();
     refreshHome();
+    renderBoutiqueState();
 }
 
 // ─── HOME ───────────────────────────────────────────────────────────────────
 function refreshHome() {
-    // lock/warn
+    // Welcome banner — visible only while free boosters remain
+    const banner = document.getElementById('welcome-banner');
+    if (banner) {
+        const n = boosterAvailability.freeBoostersLeft;
+        if (n > 0) {
+            banner.style.display = 'flex';
+            banner.innerHTML = `
+                <div class="wb-left">
+                    <div class="wb-icon">🎁</div>
+                    <div class="wb-text">
+                        <div class="wb-title">Boosters offerts !</div>
+                        <div class="wb-sub">Tu as <b>${n}</b> booster${n > 1 ? 's' : ''} gratuit${n > 1 ? 's' : ''} qui t'attend${n > 1 ? 'ent' : ''} en boutique</div>
+                    </div>
+                </div>
+                <button class="wb-btn" onclick="goToTab(2)">Ouvrir →</button>
+            `;
+        } else {
+            banner.style.display = 'none';
+        }
+    }
+
+    // Lock / deck warn
     const lock = document.getElementById('home-lock');
     const warn = document.getElementById('home-deck-warn');
     const btn = document.getElementById('battle-btn');
@@ -166,111 +193,18 @@ function refreshHome() {
         if (myDeck.length < 3) { warn.style.display = 'block'; btn.classList.add('disabled'); }
         else { warn.style.display = 'none'; btn.classList.remove('disabled'); }
     }
-    // deck strip
+
+    // Deck strip
     const dsc = document.getElementById('ds-cards');
     if (myDeck.length === 0) { dsc.innerHTML = '<span class="ds-empty">Aucune carte</span>'; return; }
     dsc.innerHTML = myDeck.map(id => {
         const c = inventory.find(x => x.id === id);
         return c ? `<div class="ds-mini">${em(c.name)} ${c.name}</div>` : '';
     }).join('');
-    renderChestSlots();
 }
-
-// ─── CHEST SLOTS ────────────────────────────────────────────────────────────
-function renderChestSlots() {
-    const FREE = 3;
-    const unlockedCount = chestSlots.filter(s => s.unlocked).length;
-    chestSlots.forEach((slot, i) => {
-        const el = document.getElementById(`cs-${i}`);
-        if (!el) return;
-        el.className = 'chest-slot';
-        if (slot.unlocked && slot.card) {
-            // Ready to collect
-            el.classList.add('cs-ready');
-            el.innerHTML = `<div class="cs-icon">🎁</div><div class="cs-label">${slot.card.name}</div><div class="cs-sub">Récupérer !</div>`;
-        } else if (!slot.unlocked) {
-            const isFreeSlot = unlockedCount < FREE;
-            if (isFreeSlot) {
-                el.classList.add('cs-free');
-                el.innerHTML = `<div class="cs-icon">📦</div><div class="cs-label">Booster</div><div class="cs-sub" style="color:var(--gold)">GRATUIT</div>`;
-            } else {
-                el.classList.add('cs-paid');
-                el.innerHTML = `<div class="cs-icon">🔒</div><div class="cs-label">Booster</div><div class="cs-sub">🪙 100</div>`;
-            }
-        } else {
-            el.classList.add('cs-empty');
-            el.innerHTML = `<div class="cs-icon" style="opacity:.3">📦</div><div class="cs-label" style="opacity:.3">Vide</div>`;
-        }
-    });
-}
-
-window.openChestSlot = function (idx) {
-    const slot = chestSlots[idx];
-    const el = document.getElementById(`cs-${idx}`);
-    const modal = document.getElementById('chest-modal');
-    const inner = document.getElementById('chest-modal-inner');
-    const FREE = 3;
-    const unlockedCount = chestSlots.filter(s => s.unlocked).length;
-
-    if (slot.unlocked && slot.card) {
-        // Collect card
-        inner.innerHTML = `
-            <div class="chest-m-icon">🎁</div>
-            <div class="chest-m-title">Carte disponible !</div>
-            <div class="chest-m-card">
-                <div style="font-size:2em">${em(slot.card.name)}</div>
-                <div class="chest-m-card-name">${slot.card.name}</div>
-                <div class="chest-m-card-hint">Quiz disponible dans ta collection</div>
-            </div>
-            <div class="chest-m-btns">
-                <button class="btn-primary" onclick="collectChest(${idx})">Récupérer !</button>
-                <button class="btn-outline" onclick="closeChestModal()">Fermer</button>
-            </div>`;
-    } else if (!slot.unlocked) {
-        const isFree = unlockedCount < FREE;
-        const cost = isFree ? 0 : 100;
-        const canAfford = isFree || coins >= cost;
-        inner.innerHTML = `
-            <div class="chest-m-icon">📦</div>
-            <div class="chest-m-title">Ouvrir un Booster</div>
-            <div class="chest-m-body">Obtiens une carte aléatoire.<br>Passe ensuite le quiz pour la débloquer !</div>
-            ${cost > 0 ? `<div class="chest-m-cost">🪙 ${cost} pièces</div>` : `<div class="chest-m-cost" style="color:#66bb6a">✨ Gratuit !</div>`}
-            ${!canAfford ? `<div class="chest-m-body" style="color:#ff8a80">Pas assez de pièces ! (${coins}/100 🪙)</div>` : ''}
-            <div class="chest-m-btns">
-                <button class="btn-primary" ${!canAfford ? 'disabled style="opacity:.4"' : ''} onclick="unlockChest(${idx})">Ouvrir</button>
-                <button class="btn-outline" onclick="closeChestModal()">Annuler</button>
-            </div>`;
-    } else {
-        return; // empty, nothing to do
-    }
-    modal.style.display = 'flex';
-};
-
-window.unlockChest = async function (idx) {
-    closeChestModal();
-    const r = await api('/api/chest/unlock', { method: 'POST', body: JSON.stringify({ slotIndex: idx }) });
-    if (!r) return;
-    const d = await r.json();
-    if (r.ok) {
-        showToast(`📦 ${d.card.name} obtenu !`, 'success');
-        await loadInventory();
-    } else showToast(d.error, 'error');
-};
-
-window.collectChest = async function (idx) {
-    closeChestModal();
-    const r = await api('/api/chest/collect', { method: 'POST', body: JSON.stringify({ slotIndex: idx }) });
-    if (!r) return;
-    const d = await r.json();
-    if (r.ok) { showToast(d.message, 'success'); await loadInventory(); }
-    else showToast(d.error, 'error');
-};
-
-window.closeChestModal = function () { document.getElementById('chest-modal').style.display = 'none'; };
 
 // ─── INVENTORY / DECK VIEW ──────────────────────────────────────────────────
 function renderDeckView() {
-    // deck grid (3 slots)
     const grid = document.getElementById('deck-grid');
     const countLbl = document.getElementById('deck-count-lbl');
     if (!grid) return;
@@ -288,10 +222,8 @@ function renderDeckView() {
             <div class="dslot-rbar" style="background:${rcol(c.rarity)}"></div>
         </div>`;
     }).join('');
-    // inventory below
     const ig = document.getElementById('inv-grid');
     if (ig) ig.innerHTML = buildInvCards(inventory);
-    addInvListeners();
 }
 
 function buildInvCards(cards) {
@@ -309,8 +241,6 @@ function buildInvCards(cards) {
         </div>`;
     }).join('');
 }
-
-function addInvListeners() { /* clicks handled via onclick attr */ }
 
 window.switchCardTab = function (btn, tab) {
     document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
@@ -398,14 +328,9 @@ async function startQuiz(cardId) {
 
     const card = inventory.find(c => c.id === cardId);
     quizState = {
-        cardId,
-        cardName: card?.name || '?',
-        sessionId: d.sessionId,
-        questions: d.questions,
-        total: d.total,
-        current: 0,
-        scores: [], // true/false per question
-        answered: false
+        cardId, cardName: card?.name || '?',
+        sessionId: d.sessionId, questions: d.questions,
+        total: d.total, current: 0, scores: [], answered: false
     };
 
     renderQuiz();
@@ -413,10 +338,8 @@ async function startQuiz(cardId) {
 }
 
 function renderQuiz() {
-    const { questions, current, total, scores, cardId, cardName } = quizState;
-    const card = inventory.find(c => c.id === cardId);
+    const { questions, current, total, scores, cardName } = quizState;
     const panel = document.getElementById('quiz-panel');
-
     const progressPct = (current / total) * 100;
     const letters = ['A', 'B', 'C', 'D'];
 
@@ -444,7 +367,6 @@ function renderQuiz() {
             </div>
             <button onclick="closeQuiz()" style="background:transparent;color:rgba(255,255,255,.4);font-size:1.3em;padding:4px 8px;">✕</button>
         </div>
-
         <div class="quiz-progress-wrap">
             <div class="quiz-progress-labels">
                 <span>Question ${current + 1}/${total}</span>
@@ -454,18 +376,13 @@ function renderQuiz() {
                 <div class="quiz-progress-fill" style="width:${progressPct}%"></div>
             </div>
         </div>
-
         <div class="quiz-score-dots">${dotsHtml}</div>
-
         <div class="quiz-question-wrap">
             <div class="quiz-q-num">Question ${current + 1}</div>
             <div class="quiz-question">${q.question}</div>
         </div>
-
         <div class="quiz-choices" id="quiz-choices">${choicesHtml}</div>
-
         <div class="quiz-feedback" id="quiz-feedback"></div>
-
         <div class="quiz-next-wrap">
             <button class="quiz-next" id="quiz-next" onclick="quizNext()">
                 ${current + 1 < total ? 'Question suivante →' : 'Voir les résultats 🏆'}
@@ -490,10 +407,7 @@ window.quizAnswer = async function (choiceIdx) {
     const { correct, correctAnswer } = d;
     quizState.scores.push(correct);
 
-    // Lock all buttons
     document.querySelectorAll('.quiz-choice').forEach(btn => btn.classList.add('locked'));
-
-    // Highlight correct/wrong
     const btns = document.querySelectorAll('.quiz-choice');
     btns[correctAnswer].classList.add('correct-ans');
     btns[correctAnswer].querySelector('.qc-icon').innerText = '✅';
@@ -502,14 +416,12 @@ window.quizAnswer = async function (choiceIdx) {
         btns[choiceIdx].querySelector('.qc-icon').innerText = '❌';
     }
 
-    // Update score dots live
     const dots = document.querySelectorAll('.qsd');
     if (dots[quizState.current]) {
         dots[quizState.current].classList.remove('pending');
         dots[quizState.current].classList.add(correct ? 'correct' : 'wrong');
     }
 
-    // Feedback message
     const fb = document.getElementById('quiz-feedback');
     if (correct) {
         fb.className = 'quiz-feedback show ok';
@@ -520,19 +432,12 @@ window.quizAnswer = async function (choiceIdx) {
         fb.innerText = `Raté ! La bonne réponse était : "${quizState.questions[quizState.current].choices[correctAnswer]}"`;
     }
 
-    // Show next button
-    const nextBtn = document.getElementById('quiz-next');
-    nextBtn.classList.add('show');
+    document.getElementById('quiz-next').classList.add('show');
 };
 
 window.quizNext = async function () {
     quizState.current++;
-
-    // Si toutes les questions sont répondues → résultats
-    if (quizState.current >= quizState.total) {
-        await showQuizResult();
-        return;
-    }
+    if (quizState.current >= quizState.total) { await showQuizResult(); return; }
     renderQuiz();
 };
 
@@ -547,8 +452,8 @@ async function showQuizResult() {
 
     const { passed, score, total, xpGain, leveledUp, newLevel } = d;
     const stars = score >= 5 ? '⭐⭐⭐' : score >= 4 ? '⭐⭐' : score >= 3 ? '⭐' : '';
-
     const panel = document.getElementById('quiz-panel');
+
     if (passed) {
         panel.innerHTML = `
             <div class="quiz-result">
@@ -560,10 +465,9 @@ async function showQuizResult() {
                 <div style="font-size:2.5em">${em(quizState.cardName)}</div>
                 <div style="font-family:'Lilita One',cursive;font-size:1.1em;color:#fff">${quizState.cardName}</div>
                 <div style="font-size:.78em;color:rgba(255,255,255,.4);font-weight:700">Disponible dans ton deck !</div>
-                <div class="qr-btns">
-                    <button class="btn-primary" onclick="closeQuiz(true)">Retour à la collection</button>
-                </div>
+                <div class="qr-btns"><button class="btn-primary" onclick="closeQuiz(true)">Retour à la collection</button></div>
             </div>`;
+        await loadInventory();
     } else {
         panel.innerHTML = `
             <div class="quiz-result">
@@ -577,47 +481,96 @@ async function showQuizResult() {
                 </div>
             </div>`;
     }
-
-    if (passed) {
-        await loadInventory();
-    }
 }
 
-window.retryQuiz = async function () {
-    const cardId = quizState.cardId;
-    await startQuiz(cardId);
-};
-
+window.retryQuiz = async function () { await startQuiz(quizState.cardId); };
 window.closeQuiz = function (reload = false) {
     document.getElementById('quiz-modal').style.display = 'none';
     quizState = null;
-    if (reload) {
-        loadInventory();
-        goToTab(1);
-    }
+    if (reload) { loadInventory(); goToTab(1); }
 };
 
 // ─── BOUTIQUE ───────────────────────────────────────────────────────────────
-document.getElementById('open-booster-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('open-booster-btn');
-    btn.disabled = true;
-    const r = await api('/api/open-booster', { method: 'POST' });
-    btn.disabled = false;
+function renderBoutiqueState() {
+    const { freeBoostersLeft, winsBoostersAvailable, winsTotal } = boosterAvailability;
+    const totalFree = freeBoostersLeft + winsBoostersAvailable;
+    const canAfford = coins >= 1000;
+
+    const freeBtn = document.getElementById('open-booster-btn');
+    const freeInfo = document.getElementById('booster-free-info');
+    if (freeBtn) {
+        freeBtn.disabled = totalFree === 0;
+        freeBtn.style.opacity = totalFree === 0 ? '0.4' : '1';
+        freeBtn.style.cursor = totalFree === 0 ? 'not-allowed' : 'pointer';
+    }
+    if (freeInfo) {
+        if (freeBoostersLeft > 0) {
+            freeInfo.innerHTML = `🎁 <b>${freeBoostersLeft}</b> booster${freeBoostersLeft > 1 ? 's' : ''} offert${freeBoostersLeft > 1 ? 's' : ''} disponible${freeBoostersLeft > 1 ? 's' : ''}`;
+            freeInfo.style.color = '#66bb6a';
+        } else if (winsBoostersAvailable > 0) {
+            freeInfo.innerHTML = `🏆 <b>${winsBoostersAvailable}</b> booster${winsBoostersAvailable > 1 ? 's' : ''} victoire disponible${winsBoostersAvailable > 1 ? 's' : ''}`;
+            freeInfo.style.color = '#f5c518';
+        } else {
+            const winsToNext = 5 - (winsTotal % 5);
+            freeInfo.innerHTML = `⏳ Prochain booster dans <b>${winsToNext} victoire${winsToNext > 1 ? 's' : ''}</b>`;
+            freeInfo.style.color = 'rgba(255,255,255,.5)';
+        }
+    }
+
+    const paidBtn = document.getElementById('buy-booster-btn');
+    const paidInfo = document.getElementById('booster-paid-info');
+    if (paidBtn) {
+        paidBtn.disabled = !canAfford;
+        paidBtn.style.opacity = !canAfford ? '0.4' : '1';
+        paidBtn.style.cursor = !canAfford ? 'not-allowed' : 'pointer';
+    }
+    if (paidInfo) {
+        if (canAfford) {
+            paidInfo.innerHTML = `Vous avez <b>${coins} 🪙</b> — achat disponible !`;
+            paidInfo.style.color = '#66bb6a';
+        } else {
+            paidInfo.innerHTML = `🔒 Il vous faut <b>1 000 🪙</b> (vous avez ${coins} 🪙)`;
+            paidInfo.style.color = 'rgba(255,255,255,.4)';
+        }
+    }
+}
+
+async function openBooster(buyWithCoins = false) {
+    const btn = buyWithCoins ? document.getElementById('buy-booster-btn') : document.getElementById('open-booster-btn');
+    if (btn) btn.disabled = true;
+
+    const r = await api('/api/open-booster', { method: 'POST', body: JSON.stringify({ buyWithCoins }) });
+    if (btn) btn.disabled = false;
     if (!r) return;
+
     const d = await r.json();
     if (r.ok) {
         const c = d.card;
-        document.getElementById('booster-result').style.display = 'block';
-        document.getElementById('booster-result').innerHTML = `
+        const sourceLabel = d.source === 'free' ? '🎁 Booster offert utilisé !' : d.source === 'wins' ? '🏆 Booster victoire utilisé !' : '🪙 Booster acheté !';
+        const resultEl = document.getElementById('booster-result');
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = `
+            <div style="font-size:.78em;font-weight:900;color:rgba(255,255,255,.45);margin-bottom:8px">${sourceLabel}</div>
             <div style="font-size:2.8em;margin-bottom:8px">${em(c.name)}</div>
             <div style="font-family:'Lilita One',cursive;font-size:1.2em">${c.name}</div>
             <div style="font-size:.8em;color:rgba(255,255,255,.5);margin:4px 0">${c.type}</div>
             <span style="background:${rcol(c.rarity)};color:#fff;padding:2px 10px;border-radius:10px;font-size:.72em;font-weight:900">${c.rarity}</span>
             <div style="margin-top:10px;font-size:.78em;color:rgba(255,255,255,.5);font-weight:700">❓ Quiz disponible dans ta collection</div>`;
+
         showToast(`📦 ${c.name} obtenu !`, 'success');
+        boosterAvailability.freeBoostersLeft = d.freeBoostersLeft;
+        boosterAvailability.winsBoostersAvailable = d.winsBoostersAvailable;
+        coins = d.coins ?? coins;
+        updateTopBar({ level: playerLevel, xp: 0, xpNeeded: playerLevel * 100, coins });
+        renderBoutiqueState();
         await loadInventory();
-    } else showToast(d.error, 'error');
-});
+    } else {
+        showToast(d.error, 'error');
+    }
+}
+
+document.getElementById('open-booster-btn').addEventListener('click', () => openBooster(false));
+document.getElementById('buy-booster-btn')?.addEventListener('click', () => openBooster(true));
 
 // ─── SOCIAL ─────────────────────────────────────────────────────────────────
 let friendsCache = [], searchT;
@@ -697,7 +650,6 @@ function renderScoreboard() {
 }
 
 // ─── SOCKET / COMBAT ────────────────────────────────────────────────────────
-
 function initSocket() {
     if (socket) return;
     socket = io(API, { auth: { token: getToken() } });
@@ -762,7 +714,6 @@ function updateBoard(state) {
     const pts = n => '🔴'.repeat(Math.max(0, n)) + '⚪'.repeat(Math.max(0, 3 - n));
     document.getElementById('player-pts').innerText = pts(state.myPoints);
     document.getElementById('enemy-pts').innerText = pts(state.enemyPoints);
-
     document.getElementById('enemy-active').innerHTML = bigCard(state.enemyCards[state.enemyActiveIndex], true);
     document.getElementById('enemy-bench').innerHTML = state.enemyCards.map((c, i) => i !== state.enemyActiveIndex ? benchCard(c) : '').join('');
     document.getElementById('player-active').innerHTML = bigCard(state.myCards[state.myActiveIndex], true);
@@ -792,7 +743,7 @@ function showEndModal(data) {
     const me = localStorage.getItem('username');
     const win = data.winner === me;
     const xp = data.xpStats?.[me];
-    const coins = data.xpStats?.[me]?.coinGain;
+    const coinsGained = data.xpStats?.[me]?.coinGain;
 
     document.getElementById('end-emoji').innerText = win ? '🏆' : '💀';
     const t = document.getElementById('end-title');
@@ -802,12 +753,11 @@ function showEndModal(data) {
 
     let html = '';
     if (xp) html += `<div class="reward-xp">+${xp.xpGain} XP${xp.leveledUp ? `<br>🎉 NIVEAU ${xp.newLevel} !` : ''}</div>`;
-    if (coins) html += `<div class="reward-coins">+${coins} 🪙 pièces</div>`;
+    if (coinsGained) html += `<div class="reward-coins">+${coinsGained} 🪙 pièces</div>`;
     if (win && data.boosterReward) {
         html += `<div class="reward-booster"><div class="rb-label">🎴 Booster gagné !</div><div class="rb-name">${em(data.boosterReward.name)} ${data.boosterReward.name}</div><div class="rb-hint">Quiz dans ta collection</div></div>`;
     }
     document.getElementById('end-rewards').innerHTML = html;
-
     document.getElementById('combat-screen').style.display = 'none';
     document.getElementById('end-modal').style.display = 'flex';
 }

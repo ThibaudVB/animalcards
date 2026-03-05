@@ -59,26 +59,20 @@
                     <div class="arena-label">Arène des Animaux</div>
                     <div class="arena-icon">🏟️</div>
                 </div>
-                <div class="deck-strip">
+                <div class="deck-strip" onclick="goToTab(1)" style="cursor:pointer">
                     <span class="ds-title">Deck actif</span>
                     <div class="ds-cards" id="ds-cards"><span class="ds-empty">Aucune carte</span></div>
-                    <button class="ds-edit" onclick="goToTab(1)">Modifier</button>
+                    <button class="ds-edit" onclick="event.stopPropagation();goToTab(1)">Modifier</button>
                 </div>
                 <div class="battle-area">
-                    <div id="home-lock" class="warn-pill red">🔒 Niveau 2 requis — ouvre des boosters !</div>
-                    <div id="home-deck-warn" class="warn-pill amber" style="display:none">⚠️ 3 cartes requises dans le deck</div>
+                    <div id="home-lock" class="warn-pill red">Niveau 2 requis — ouvre des boosters !</div>
+                    <div id="home-deck-warn" class="warn-pill amber" style="display:none">3 cartes requises dans le deck</div>
                     <button id="battle-btn" class="btn-battle">
-                        <span class="bb-icon">⚔️</span>
-                        <span class="bb-main">BATAILLE</span>
+                        <span class="bb-main">CHALLENGE</span>
                         <span class="bb-sub">Trouver un adversaire</span>
                     </button>
                 </div>
-                <!-- CHEST SLOTS (CR style) -->
-                <div class="chest-bar">
-                    <div class="chest-slot" id="cs-0" onclick="openChestSlot(0)"></div>
-                    <div class="chest-slot" id="cs-1" onclick="openChestSlot(1)"></div>
-                    <div class="chest-slot" id="cs-2" onclick="openChestSlot(2)"></div>
-                    <div class="chest-slot" id="cs-3" onclick="openChestSlot(3)"></div>
+                <div id="welcome-banner" style="display:none;align-items:center;justify-content:space-between;gap:12px;margin:12px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(245,197,24,.15),rgba(255,152,0,.1));border:1.5px solid rgba(245,197,24,.4);border-radius:16px;">
                 </div>
             </div>
 
@@ -114,8 +108,16 @@
                     </div>
                     <div class="shop-pack-name">Booster Mystère</div>
                     <div class="shop-pack-desc">Carte aléatoire · Quiz pour débloquer</div>
-                    <button id="open-booster-btn" class="btn-open">Ouvrir gratuitement</button>
+                    <div id="booster-free-info" style="margin:8px 0;font-size:.88em;color:rgba(255,255,255,.7);font-weight:800"></div>
+                    <button id="open-booster-btn" class="btn-open">Ouvrir un booster</button>
                 </div>
+
+                <div style="margin:20px 16px 0;border-top:1px solid rgba(255,255,255,.1);padding-top:20px">
+                    <div style="font-family:'Lilita One',cursive;font-size:1.05em;margin-bottom:6px;color:#f5c518">Booster Mystère Premium</div>
+                    <div id="booster-paid-info" style="font-size:.82em;color:rgba(255,255,255,.55);margin-bottom:10px;font-weight:800"></div>
+                    <button id="buy-booster-btn" class="btn-open" style="background:linear-gradient(135deg,#f5c518,#ff9800);color:#1a1a2e">🪙 Acheter pour 1 000 pièces</button>
+                </div>
+
                 <div id="booster-result" class="booster-result" style="display:none"></div>
             </div>
 
@@ -128,11 +130,11 @@
                     <div id="search-results" class="player-list"></div>
                 </div>
                 <div class="soc-box" id="requests-box" style="display:none">
-                    <div class="soc-label">📨 Demandes reçues <span class="badge" id="req-count"></span></div>
+                    <div class="soc-label">Demandes reçues <span class="badge" id="req-count"></span></div>
                     <div id="friend-requests-list" class="player-list"></div>
                 </div>
                 <div class="soc-box">
-                    <div class="soc-label">👥 Mes Amis</div>
+                    <div class="soc-label">Mes Amis</div>
                     <div id="friends-list" class="player-list"><span class="empty-hint">Aucun ami pour l'instant</span></div>
                 </div>
             </div>
@@ -140,7 +142,7 @@
             <!-- TAB 4: CLASSEMENT -->
             <div class="tab tab-rank" id="tab-4">
                 <div class="rank-bg"></div>
-                <h2 class="rank-title">🏆 Classement</h2>
+                <h2 class="rank-title">Classement</h2>
                 <div class="rank-pills" id="rank-pills">
                     <button class="rpill active" data-sort="level">Niveau</button>
                     <button class="rpill" data-sort="wins">Victoires</button>
@@ -232,11 +234,6 @@
 <!-- CARD DETAIL MODAL -->
 <div id="card-modal" style="display:none" onclick="closeCardModal()">
     <div class="card-modal-inner" id="card-modal-inner" onclick="event.stopPropagation()"></div>
-</div>
-
-<!-- CHEST MODAL -->
-<div id="chest-modal" style="display:none" onclick="closeChestModal()">
-    <div class="chest-modal-inner" id="chest-modal-inner" onclick="event.stopPropagation()"></div>
 </div>
 
 <!-- QUIZ MODAL -->
