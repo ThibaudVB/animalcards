@@ -6,20 +6,21 @@
 /* ── 1. VARIABLES & RESET ─────────────────────────── */
 
 :root {
-    --bg:           #1a1130;
-    --bg2:          #231a42;
-    --bg3:          #2d2255;
-    --gold:         #f5c518;
-    --gold2:        #e6a800;
-    --red:          #e53935;
-    --red2:         #b71c1c;
-    --green:        #43a047;
-    --green2:       #1b5e20;
-    --blue:         #1565c0;
-    --blue2:        #0d47a1;
-    --purple:       #6a1b9a;
-    --card-bg:      #0d1b3e;
-    --card-border:  rgba(255,255,255,.12);
+    /* Palette issue des cartes PawBattle */
+    --bg:           #0D0D0D;          /* 1 Baleine — noir profond */
+    --bg2:          #1C1408;          /* brun très sombre dérivé */
+    --bg3:          #2A1E0A;          /* brun foncé dérivé */
+    --gold:         #E8C93A;          /* 31 Hippocampe géant — jaune vif */
+    --gold2:        #D4A017;          /* 4 Pygargue — or foncé */
+    --red:          #D03C2A;          /* 29 Corail rouge */
+    --red2:         #922A1A;          /* rouge foncé dérivé */
+    --green:        #3DBF8C;          /* 62 Napoléon — vert émeraude */
+    --green2:       #1E7A58;          /* vert foncé dérivé */
+    --blue:         #8DAAC0;          /* 6 Dauphin d'Hector — bleu acier */
+    --blue2:        #5A7A98;          /* bleu acier foncé dérivé */
+    --purple:       #4A5040;          /* 39 Crocodile de Cuba — kaki sombre */
+    --card-bg:      #1C1008;          /* brun très sombre */
+    --card-border:  rgba(232,201,58,.15);
     --r:            12px;
     --r-sm:         8px;
     --shadow:       0 4px 20px rgba(0,0,0,.5);
@@ -53,7 +54,7 @@ input  { font-family: inherit; }
 
 /* Scrollbar globale */
 ::-webkit-scrollbar       { width: 3px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(232,201,58,.2); border-radius: 3px; }
 
 
 /* ── 2. AUTH ──────────────────────────────────────── */
@@ -71,13 +72,14 @@ input  { font-family: inherit; }
 .auth-bg {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 50% 25%, #3d2080 0%, #1a1130 65%);
+    /* 39 Crocodile de Cuba (kaki) vers 1 Baleine (noir) */
+    background: radial-gradient(ellipse at 50% 25%, #3A3C28 0%, #0D0D0D 65%);
 }
 .auth-bg::after {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(232,201,58,.06) 1px, transparent 1px);
     background-size: 30px 30px;
 }
 
@@ -93,66 +95,67 @@ input  { font-family: inherit; }
 }
 
 .logo               { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.logo-paw           { font-size: 4em; filter: drop-shadow(0 0 20px rgba(245,197,24,.7)); }
-.logo-name          { font-family: 'Lilita One', cursive; font-size: 2.4em; color: var(--gold); text-shadow: 0 3px 0 #8a5e00, 0 6px 16px rgba(0,0,0,.6); }
+.logo-paw           { font-size: 4em; filter: drop-shadow(0 0 20px rgba(232,201,58,.7)); }
+/* 31 Hippocampe géant — jaune */
+.logo-name          { font-family: 'Lilita One', cursive; font-size: 2.4em; color: var(--gold); text-shadow: 0 3px 0 #7A5800, 0 6px 16px rgba(0,0,0,.6); }
 
-.auth-card          { width: 100%; background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.14); border-radius: var(--r); padding: 22px 18px; backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 11px; }
+.auth-card          { width: 100%; background: rgba(232,201,58,.06); border: 1.5px solid rgba(232,201,58,.18); border-radius: var(--r); padding: 22px 18px; backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 11px; }
 .auth-card h2       { font-family: 'Lilita One', cursive; font-size: 1.4em; color: var(--gold); text-align: center; }
-.auth-card input    { padding: 12px 14px; border: 1.5px solid rgba(255,255,255,.18); border-radius: var(--r-sm); background: rgba(0,0,0,.3); color: #fff; font-size: .95em; font-weight: 700; }
+.auth-card input    { padding: 12px 14px; border: 1.5px solid rgba(232,201,58,.2); border-radius: var(--r-sm); background: rgba(0,0,0,.35); color: #fff; font-size: .95em; font-weight: 700; }
 .auth-card input::placeholder { color: rgba(255,255,255,.35); }
 .auth-card input:focus        { outline: none; border-color: var(--gold); }
 
-#error-msg    { color: #ff8a80; font-size: .82em; text-align: center; min-height: 16px; }
+#error-msg    { color: #FF8A80; font-size: .82em; text-align: center; min-height: 16px; }
 #toggle-link  { text-align: center; font-size: .83em; color: rgba(255,255,255,.45); }
 #toggle-link span { color: var(--gold); font-weight: 800; cursor: pointer; }
 
 
 /* ── 3. BUTTONS ───────────────────────────────────── */
 
-/* Bouton doré principal */
+/* Bouton doré principal — 31 Hippocampe / 4 Pygargue */
 .btn-primary {
     width: 100%; padding: 13px;
-    background: linear-gradient(180deg, #f5c518, #d4860a);
-    color: #1a1130; font-family: 'Lilita One', cursive; font-size: 1.1em;
+    background: linear-gradient(180deg, #E8C93A, #C4900A);
+    color: #0D0D0D; font-family: 'Lilita One', cursive; font-size: 1.1em;
     border-radius: var(--r-sm);
-    box-shadow: 0 4px 0 #7a4d00;
+    box-shadow: 0 4px 0 #6A4E00;
     transition: transform .1s;
 }
-.btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a4d00; }
+.btn-primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #6A4E00; }
 
 /* Bouton contour */
 .btn-outline {
     padding: 10px 22px;
-    background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.25);
+    background: rgba(232,201,58,.08); border: 1.5px solid rgba(232,201,58,.3);
     border-radius: 30px; color: #fff; font-weight: 800; font-size: .9em;
 }
 
-/* Bouton vert "Ouvrir" */
+/* Bouton vert "Ouvrir" — 62 Napoléon */
 .btn-open {
     width: 100%; padding: 14px;
-    background: linear-gradient(180deg, #43a047, #1b5e20);
+    background: linear-gradient(180deg, #3DBF8C, #1E7A58);
     color: #fff; font-family: 'Lilita One', cursive; font-size: 1.1em;
-    border-radius: var(--r-sm); box-shadow: 0 4px 0 #0a2e0c;
+    border-radius: var(--r-sm); box-shadow: 0 4px 0 #0A3A28;
     transition: transform .1s;
 }
 .btn-open:active { transform: translateY(3px); }
 
 /* Petits boutons */
 .btn-sm    { padding: 6px 12px; border-radius: 6px; font-size: .78em; font-weight: 800; }
-.btn-green { background: linear-gradient(180deg, #43a047, #2e7d32); color: #fff; box-shadow: 0 2px 0 #0a2e0c; }
-.btn-red   { background: rgba(183,28,28,.7); color: #fff; border: 1px solid #ef5350; }
+.btn-green { background: linear-gradient(180deg, #3DBF8C, #2A8A62); color: #fff; box-shadow: 0 2px 0 #0A3A28; }
+.btn-red   { background: rgba(146,42,26,.7); color: #fff; border: 1px solid #D03C2A; }
 .btn-grey  { background: rgba(255,255,255,.1); color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.2); }
 
-/* Bouton BATTLE (home) */
+/* Bouton BATTLE (home) — 29 Corail rouge */
 .btn-battle {
     width: 80%; padding: 15px 10px;
-    background: linear-gradient(180deg, #ef5350, #b71c1c);
+    background: linear-gradient(180deg, #D03C2A, #922A1A);
     border-radius: var(--r);
-    box-shadow: 0 6px 0 #7f0000, 0 10px 24px rgba(183,28,28,.5);
+    box-shadow: 0 6px 0 #5A1408, 0 10px 24px rgba(208,60,42,.5);
     display: flex; flex-direction: column; align-items: center; gap: 2px;
     transition: transform .1s;
 }
-.btn-battle:active      { transform: translateY(4px); box-shadow: 0 2px 0 #7f0000; }
+.btn-battle:active      { transform: translateY(4px); box-shadow: 0 2px 0 #5A1408; }
 .btn-battle.disabled    { opacity: .4; pointer-events: none; }
 .bb-icon  { font-size: 1.8em; }
 .bb-main  { font-family: 'Lilita One', cursive; font-size: 1.5em; color: #fff; letter-spacing: 2px; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
@@ -161,7 +164,7 @@ input  { font-family: inherit; }
 /* Bouton abandon en combat */
 .btn-surrender {
     padding: 8px 14px;
-    background: rgba(183,28,28,.8); border: 1.5px solid #ef5350;
+    background: rgba(146,42,26,.8); border: 1.5px solid #D03C2A;
     border-radius: var(--r-sm); color: #fff; font-size: .8em; font-weight: 800;
 }
 
@@ -173,8 +176,9 @@ input  { font-family: inherit; }
 .top-bar {
     height: 52px; flex-shrink: 0;
     display: flex; align-items: center; gap: 10px; padding: 0 12px;
-    background: linear-gradient(180deg, #251650, #1a1130);
-    border-bottom: 1.5px solid rgba(255,255,255,.08);
+    /* 1 Baleine → brun sombre */
+    background: linear-gradient(180deg, #1C1408, #0D0D0D);
+    border-bottom: 1.5px solid rgba(232,201,58,.12);
 }
 
 .tb-left   { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -184,11 +188,13 @@ input  { font-family: inherit; }
 
 .tb-xp-row   { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
 .tb-xp-track { flex: 1; height: 7px; background: rgba(0,0,0,.4); border-radius: 4px; overflow: hidden; }
-.tb-xp-fill  { height: 100%; width: 0; background: linear-gradient(90deg, #42a5f5, #1565c0); transition: width .5s; border-radius: 4px; }
-.tb-lvl      { font-family: 'Lilita One', cursive; font-size: .72em; background: var(--gold); color: #1a1130; padding: 1px 6px; border-radius: 8px; }
+/* 66 Aigrion de mercure — bleu-vert pâle */
+.tb-xp-fill  { height: 100%; width: 0; background: linear-gradient(90deg, #A8C8C0, #5A7A98); transition: width .5s; border-radius: 4px; }
+.tb-lvl      { font-family: 'Lilita One', cursive; font-size: .72em; background: var(--gold); color: #0D0D0D; padding: 1px 6px; border-radius: 8px; }
 
 .tb-right  { display: flex; align-items: center; gap: 8px; }
-.coin-pill { display: flex; align-items: center; gap: 4px; background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.35); border-radius: 14px; padding: 4px 10px; font-family: 'Lilita One', cursive; font-size: .82em; color: var(--gold); }
+/* 31 Hippocampe — jaune */
+.coin-pill { display: flex; align-items: center; gap: 4px; background: rgba(232,201,58,.15); border: 1px solid rgba(232,201,58,.35); border-radius: 14px; padding: 4px 10px; font-family: 'Lilita One', cursive; font-size: .82em; color: var(--gold); }
 .tb-logout { background: transparent; font-size: 1.2em; opacity: .6; padding: 4px; }
 
 
@@ -210,7 +216,8 @@ input  { font-family: inherit; }
 }
 
 /* Barre de navigation bas */
-.bnav { display: flex; height: 60px; background: linear-gradient(180deg, #1c1040, #110b28); border-top: 1.5px solid rgba(255,255,255,.07); flex-shrink: 0; }
+/* 1 Baleine (noir) */
+.bnav { display: flex; height: 60px; background: linear-gradient(180deg, #1C1408, #0D0D0D); border-top: 1.5px solid rgba(232,201,58,.1); flex-shrink: 0; }
 .nb   { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: transparent; color: rgba(255,255,255,.35); position: relative; transition: .2s; }
 .nb.active { color: #fff; }
 .nb.active::after { content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 3px; background: var(--gold); border-radius: 3px 3px 0 0; }
@@ -222,25 +229,24 @@ input  { font-family: inherit; }
 
 #tab-0 {
     display: flex; flex-direction: column;
-    background: linear-gradient(180deg, #231a42, #1a1130);
+    /* 1 Baleine → brun très sombre */
+    background: linear-gradient(180deg, #1C1408, #0D0D0D);
     padding-bottom: 10px;
 }
 
-/* Banderole de deck en haut */
 .deck-strip {
     order: -1;
     margin: 10px 10px 0;
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    background: rgba(232,201,58,.04); border: 1px solid rgba(232,201,58,.12);
     border-radius: var(--r); padding: 10px 12px;
     display: flex; align-items: center; gap: 8px;
 }
 .ds-title  { font-family: 'Lilita One', cursive; font-size: .85em; color: rgba(255,255,255,.5); white-space: nowrap; }
 .ds-cards  { flex: 1; display: flex; gap: 6px; flex-wrap: wrap; }
 .ds-empty  { color: rgba(255,255,255,.25); font-size: .78em; font-weight: 700; }
-.ds-mini   { background: rgba(255,255,255,.08); border-radius: 6px; padding: 4px 7px; font-size: .72em; font-weight: 800; color: rgba(255,255,255,.7); }
-.ds-edit   { font-family: 'Lilita One', cursive; font-size: .72em; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; color: rgba(255,255,255,.7); padding: 5px 9px; white-space: nowrap; }
+.ds-mini   { background: rgba(232,201,58,.1); border-radius: 6px; padding: 4px 7px; font-size: .72em; font-weight: 800; color: rgba(255,255,255,.7); }
+.ds-edit   { font-family: 'Lilita One', cursive; font-size: .72em; background: rgba(232,201,58,.1); border: 1px solid rgba(232,201,58,.2); border-radius: 6px; color: rgba(255,255,255,.7); padding: 5px 9px; white-space: nowrap; }
 
-/* Arène centrale */
 .home-arena {
     position: relative; flex: 1;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -249,20 +255,20 @@ input  { font-family: inherit; }
 .arena-glow {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
     width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(106,27,154,.6) 0%, transparent 70%);
+    /* 29 Corail rouge glow */
+    background: radial-gradient(circle, rgba(208,60,42,.5) 0%, transparent 70%);
     pointer-events: none;
 }
 .arena-label { font-family: 'Lilita One', cursive; font-size: .85em; color: rgba(255,255,255,.4); letter-spacing: 2px; text-transform: uppercase; }
-.arena-icon  { font-size: 5em; filter: drop-shadow(0 4px 20px rgba(106,27,154,.8)); }
+.arena-icon  { font-size: 5em; filter: drop-shadow(0 4px 20px rgba(208,60,42,.7)); }
 
-/* Zone de combat (bouton + avertissements) */
 .battle-area {
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     margin-top: auto; margin-bottom: 16px; padding: 0 16px;
 }
 .warn-pill         { border-radius: var(--r-sm); padding: 8px 14px; font-size: .82em; font-weight: 800; text-align: center; width: 100%; }
-.warn-pill.red     { background: rgba(183,28,28,.2); border: 1px solid rgba(239,83,80,.4); color: #ff8a80; }
-.warn-pill.amber   { background: rgba(245,197,24,.1); border: 1px solid rgba(245,197,24,.35); color: var(--gold); }
+.warn-pill.red     { background: rgba(146,42,26,.2); border: 1px solid rgba(208,60,42,.4); color: #FF8A80; }
+.warn-pill.amber   { background: rgba(232,201,58,.1); border: 1px solid rgba(232,201,58,.35); color: var(--gold); }
 
 /* Emplacements coffres */
 .chest-bar  { display: flex; gap: 8px; padding: 0 10px; margin-top: auto; }
@@ -273,12 +279,15 @@ input  { font-family: inherit; }
 }
 .chest-slot:active    { transform: scale(.94); }
 .chest-slot.cs-locked { background: rgba(0,0,0,.25); border-color: rgba(255,255,255,.07); opacity: .55; }
-.chest-slot.cs-free   { background: rgba(245,197,24,.1); border-color: rgba(245,197,24,.5); animation: chestPulse 2s ease-in-out infinite; }
-.chest-slot.cs-paid   { background: rgba(66,165,245,.1); border-color: rgba(66,165,245,.4); }
-.chest-slot.cs-ready  { background: rgba(67,160,71,.15); border-color: rgba(67,160,71,.6); animation: chestPulse 2s ease-in-out infinite; }
+/* 31 Hippocampe jaune */
+.chest-slot.cs-free   { background: rgba(232,201,58,.1); border-color: rgba(232,201,58,.5); animation: chestPulse 2s ease-in-out infinite; }
+/* 66 Aigrion bleu-vert */
+.chest-slot.cs-paid   { background: rgba(168,200,192,.1); border-color: rgba(168,200,192,.4); }
+/* 62 Napoléon vert */
+.chest-slot.cs-ready  { background: rgba(61,191,140,.15); border-color: rgba(61,191,140,.6); animation: chestPulse 2s ease-in-out infinite; }
 .chest-slot.cs-empty  { background: rgba(255,255,255,.03); border-color: rgba(255,255,255,.06); border-style: dashed; }
 
-@keyframes chestPulse { 0%,100%{ box-shadow: 0 0 6px rgba(245,197,24,.3); } 50%{ box-shadow: 0 0 18px rgba(245,197,24,.8); } }
+@keyframes chestPulse { 0%,100%{ box-shadow: 0 0 6px rgba(232,201,58,.3); } 50%{ box-shadow: 0 0 18px rgba(232,201,58,.8); } }
 
 .cs-icon  { font-size: 1.6em; }
 .cs-label { font-family: 'Lilita One', cursive; font-size: .62em; text-align: center; }
@@ -287,12 +296,12 @@ input  { font-family: inherit; }
 
 /* ── 7. TAB CARTES ────────────────────────────────── */
 
-#tab-1 { background: linear-gradient(180deg, #0d2a6b, #071840); padding-bottom: 20px; }
+/* 6 Dauphin d'Hector bleu acier → fond sombre */
+#tab-1 { background: linear-gradient(180deg, #1C2830, #0D1418); padding-bottom: 20px; }
 
-/* Sous-onglets Collection / Deck */
 .cards-topbar {
     display: flex; background: rgba(0,0,0,.3);
-    border-bottom: 1.5px solid rgba(255,255,255,.08);
+    border-bottom: 1.5px solid rgba(232,201,58,.1);
     flex-shrink: 0; position: sticky; top: 0; z-index: 10;
 }
 .ctab       { flex: 1; padding: 13px; background: transparent; color: rgba(255,255,255,.45); font-family: 'Lilita One', cursive; font-size: .95em; position: relative; transition: .2s; }
@@ -301,12 +310,10 @@ input  { font-family: inherit; }
 
 #ctab-deck, #ctab-collection { padding: 12px; }
 
-/* En-tête du deck */
 .deck-hdr       { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .deck-hdr-title { font-family: 'Lilita One', cursive; font-size: 1.05em; }
 .deck-hdr-count { font-family: 'Lilita One', cursive; font-size: 1.1em; color: var(--gold); }
 
-/* Grille deck (3 colonnes portrait) */
 .deck-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 12px; }
 .dslot {
     aspect-ratio: 3/4.2; border-radius: 10px;
@@ -316,58 +323,64 @@ input  { font-family: inherit; }
     position: relative; overflow: hidden; transition: .15s;
 }
 .dslot.filled {
-    background: linear-gradient(180deg, #1a3d80, #0d2256);
-    border: 2px solid rgba(255,255,255,.2);
+    /* 6 Dauphin d'Hector / 53 Poisson lune bleu-gris */
+    background: linear-gradient(180deg, #1C3040, #0D1E2C);
+    border: 2px solid rgba(141,170,192,.3);
     box-shadow: var(--shadow); cursor: pointer;
 }
 .dslot.filled:active  { transform: scale(.96); }
 .dslot-empty-lbl      { color: rgba(255,255,255,.2); font-size: .7em; font-weight: 800; }
-.dslot-remove         { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; background: rgba(183,28,28,.9); border-radius: 50%; font-size: .6em; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+.dslot-remove         { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; background: rgba(146,42,26,.9); border-radius: 50%; font-size: .6em; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
 .dslot-emoji          { font-size: 2em; }
 .dslot-name           { font-family: 'Lilita One', cursive; font-size: .62em; text-align: center; line-height: 1.2; }
 .dslot-stats          { font-size: .6em; color: rgba(255,255,255,.5); font-weight: 800; }
 .dslot-rbar           { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
 
-/* Séparateur de section */
 .section-sep {
     text-align: center; font-size: .72em; font-weight: 800;
     color: rgba(255,255,255,.25); letter-spacing: 1px; text-transform: uppercase;
     position: relative; margin: 6px 0 10px;
 }
 .section-sep::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,.08); }
-.section-sep span    { position: relative; background: #0d2a6b; padding: 0 8px; }
+.section-sep span    { position: relative; background: #1C2830; padding: 0 8px; }
 
 .inv-hint { font-size: .76em; color: rgba(255,255,255,.35); text-align: center; margin-bottom: 10px; font-weight: 700; }
 
-/* Grille inventaire */
 .inv-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
 .icard {
     aspect-ratio: 3/4.2; border-radius: 10px;
     display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     padding: 8px 5px;
-    background: linear-gradient(180deg, #162050, #0a1538);
-    border: 2px solid rgba(255,255,255,.12);
+    /* 1 Baleine → brun sombre */
+    background: linear-gradient(180deg, #1C1810, #0D0D08);
+    border: 2px solid rgba(232,201,58,.14);
     position: relative; overflow: hidden; cursor: pointer;
     transition: transform .15s; box-shadow: 0 3px 10px rgba(0,0,0,.4);
 }
 .icard:active         { transform: scale(.94); }
 .icard.ilocked        { filter: grayscale(100%) brightness(.4); pointer-events: none; }
-.icard.ipending       { border-color: var(--gold); box-shadow: 0 0 12px rgba(245,197,24,.35); }
-.icard.ideck          { border-color: #43a047; box-shadow: 0 0 12px rgba(67,160,71,.4); }
+/* 31 Hippocampe jaune border */
+.icard.ipending       { border-color: var(--gold); box-shadow: 0 0 12px rgba(232,201,58,.35); }
+/* 62 Napoléon vert border */
+.icard.ideck          { border-color: #3DBF8C; box-shadow: 0 0 12px rgba(61,191,140,.4); }
 .icard-overlay        { position: absolute; inset: 0; background: rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; font-size: 1.8em; z-index: 2; border-radius: 8px; }
-.icard-deck-badge     { position: absolute; top: -1px; right: -1px; background: #43a047; color: #fff; font-size: .55em; font-weight: 900; padding: 2px 6px; border-radius: 0 8px 0 6px; z-index: 3; }
+/* 62 Napoléon vert badge */
+.icard-deck-badge     { position: absolute; top: -1px; right: -1px; background: #3DBF8C; color: #fff; font-size: .55em; font-weight: 900; padding: 2px 6px; border-radius: 0 8px 0 6px; z-index: 3; }
 .icard-emoji          { font-size: 1.75em; }
 .icard-name           { font-family: 'Lilita One', cursive; font-size: .63em; text-align: center; }
 .icard-hp             { font-size: .58em; color: rgba(255,255,255,.5); font-weight: 800; }
 .icard-rbar           { width: 100%; height: 3px; border-radius: 2px; }
 
 /* Couleurs de rareté */
-.rc { background: #9e9e9e; }          /* Common */
-.rr { background: #42a5f5; }          /* Rare */
-.re { background: #ab47bc; }          /* Epic */
-.rl { background: linear-gradient(90deg, #f5c518, #e53935); } /* Legendary */
+/* Common — 57 Cacatoès gris clair */
+.rc { background: #C8D0CC; }
+/* Rare — 66 Aigrion bleu-vert */
+.rr { background: #A8C8C0; }
+/* Epic — 29 Corail rouge */
+.re { background: #D03C2A; }
+/* Legendary — Pygargue or → Corail rouge */
+.rl { background: linear-gradient(90deg, #E8C93A, #D03C2A); }
 
-/* Stats de collection */
 .coll-stats-row { display: flex; justify-content: space-around; padding: 12px 0; margin-bottom: 12px; background: rgba(0,0,0,.2); border-radius: var(--r-sm); }
 .cstat   { text-align: center; }
 .cstat-v { font-family: 'Lilita One', cursive; font-size: 1.4em; color: var(--gold); }
@@ -376,14 +389,15 @@ input  { font-family: inherit; }
 
 /* ── 8. TAB BOUTIQUE ──────────────────────────────── */
 
+/* 62 Napoléon vert émeraude */
 .tab-shop {
     display: flex; flex-direction: column; align-items: center;
     padding: 20px 14px; gap: 16px;
-    background: linear-gradient(180deg, #1b5e20, #0a1f0b);
+    background: linear-gradient(180deg, #0E3028, #051A10);
 }
 
 .shop-hero {
-    width: 100%; background: rgba(0,0,0,.3); border: 1.5px solid rgba(255,255,255,.12);
+    width: 100%; background: rgba(0,0,0,.3); border: 1.5px solid rgba(61,191,140,.18);
     border-radius: var(--r); padding: 22px 16px;
     display: flex; flex-direction: column; align-items: center; gap: 14px;
     position: relative; overflow: hidden;
@@ -392,7 +406,8 @@ input  { font-family: inherit; }
 
 .pack-card {
     width: 80px; height: 112px;
-    background: linear-gradient(135deg, #1a237e, #283593);
+    /* 6 Dauphin / 39 Crocodile — bleu-kaki */
+    background: linear-gradient(135deg, #1C2830, #2A3020);
     border: 3px solid rgba(255,255,255,.2); border-radius: 10px;
     display: flex; align-items: center; justify-content: center; font-size: 2.8em;
     box-shadow: 0 8px 24px rgba(0,0,0,.6);
@@ -420,17 +435,19 @@ input  { font-family: inherit; }
 
 /* ── 9. TAB SOCIAL ────────────────────────────────── */
 
+/* 6 Dauphin d'Hector → bleu acier sombre */
 .tab-social {
-    padding: 14px; background: linear-gradient(180deg, #1a237e, #0d1545);
+    padding: 14px; background: linear-gradient(180deg, #1C2830, #0D1420);
     display: flex; flex-direction: column; gap: 12px;
 }
 .tab-social h2 { font-family: 'Lilita One', cursive; color: var(--gold); font-size: 1.4em; }
 
-.soc-box   { background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.09); border-radius: var(--r); padding: 13px; }
+.soc-box   { background: rgba(0,0,0,.25); border: 1px solid rgba(141,170,192,.12); border-radius: var(--r); padding: 13px; }
 .soc-label { font-family: 'Lilita One', cursive; font-size: .9em; color: rgba(255,255,255,.6); margin-bottom: 9px; display: flex; align-items: center; gap: 6px; }
+/* 29 Corail rouge badge */
 .badge     { background: var(--red); color: #fff; border-radius: 10px; padding: 0 7px; font-size: .75em; }
 
-.soc-input { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(255,255,255,.15); border-radius: var(--r-sm); background: rgba(0,0,0,.3); color: #fff; font-size: .9em; font-weight: 700; }
+.soc-input { width: 100%; padding: 10px 12px; border: 1.5px solid rgba(232,201,58,.18); border-radius: var(--r-sm); background: rgba(0,0,0,.3); color: #fff; font-size: .9em; font-weight: 700; }
 .soc-input:focus { outline: none; border-color: var(--gold); }
 
 .player-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
@@ -438,7 +455,8 @@ input  { font-family: inherit; }
 .pr-info     { flex: 1; display: flex; flex-direction: column; }
 .pr-name     { font-family: 'Lilita One', cursive; font-size: .88em; }
 .pr-meta     { font-size: .7em; color: rgba(255,255,255,.4); font-weight: 700; margin-top: 1px; }
-.dot-on      { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #66bb6a; margin-right: 4px; }
+/* 62 Napoléon vert online */
+.dot-on      { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3DBF8C; margin-right: 4px; }
 .dot-off     { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.2); margin-right: 4px; }
 .pr-actions  { display: flex; gap: 5px; }
 .empty-hint  { font-size: .8em; color: rgba(255,255,255,.3); font-weight: 700; }
@@ -446,33 +464,38 @@ input  { font-family: inherit; }
 
 /* ── 10. TAB CLASSEMENT ───────────────────────────── */
 
+/* 29 Corail rouge sombre */
 .tab-rank {
-    background: linear-gradient(180deg, #4a0f0f, #1a0505);
+    background: linear-gradient(180deg, #2A1008, #0D0500);
     position: relative;
 }
-.rank-bg    { position: absolute; top: 0; left: 0; right: 0; height: 70px; background: linear-gradient(180deg, rgba(183,28,28,.35), transparent); pointer-events: none; }
+.rank-bg    { position: absolute; top: 0; left: 0; right: 0; height: 70px; background: linear-gradient(180deg, rgba(208,60,42,.3), transparent); pointer-events: none; }
 .rank-title { font-family: 'Lilita One', cursive; font-size: 1.5em; text-align: center; padding: 14px 0 8px; position: relative; color: var(--gold); }
 
-/* Filtres de période */
 .rank-pills { display: flex; gap: 6px; padding: 0 12px 12px; overflow-x: auto; scrollbar-width: none; }
 .rank-pills::-webkit-scrollbar { display: none; }
 .rpill       { flex-shrink: 0; padding: 6px 13px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 20px; color: rgba(255,255,255,.45); font-size: .78em; font-weight: 800; transition: .2s; }
-.rpill.active { background: var(--gold); border-color: var(--gold); color: #1a1130; font-family: 'Lilita One', cursive; }
+/* 31 Hippocampe jaune actif */
+.rpill.active { background: var(--gold); border-color: var(--gold); color: #0D0D0D; font-family: 'Lilita One', cursive; }
 
-/* Tableau des scores */
 .scoreboard { display: flex; flex-direction: column; gap: 6px; padding: 0 12px 20px; }
 .sc-row     { display: flex; align-items: center; gap: 9px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.07); border-radius: var(--r-sm); padding: 10px 12px; }
-.sc-row.top1 { background: rgba(245,197,24,.12); border-color: var(--gold); }
-.sc-row.top2 { background: rgba(178,190,195,.08); border-color: #b2bec3; }
-.sc-row.top3 { background: rgba(205,97,51,.08);  border-color: #cd6133; }
-.sc-row.me   { border-color: #42a5f5; background: rgba(66,165,245,.08); }
+/* 31 Hippocampe jaune or */
+.sc-row.top1 { background: rgba(232,201,58,.12); border-color: var(--gold); }
+/* 57 Cacatoès gris */
+.sc-row.top2 { background: rgba(200,208,204,.08); border-color: #C8D0CC; }
+/* 11 Douc brun */
+.sc-row.top3 { background: rgba(192,120,64,.08);  border-color: #C07840; }
+/* 66 Aigrion bleu-vert */
+.sc-row.me   { border-color: #A8C8C0; background: rgba(168,200,192,.08); }
 .sc-medal    { font-size: 1.2em; min-width: 28px; text-align: center; }
 .sc-num      { font-family: 'Lilita One', cursive; font-size: .9em; color: rgba(255,255,255,.35); min-width: 26px; text-align: center; }
 .sc-info     { flex: 1; }
 .sc-name     { font-family: 'Lilita One', cursive; font-size: .88em; }
 .sc-sub      { font-size: .68em; color: rgba(255,255,255,.38); font-weight: 700; }
 .sc-wl       { text-align: right; }
-.sc-w        { font-family: 'Lilita One', cursive; font-size: .88em; color: #66bb6a; }
+/* 62 Napoléon vert victoires */
+.sc-w        { font-family: 'Lilita One', cursive; font-size: .88em; color: #3DBF8C; }
 .sc-l        { font-size: .7em; color: rgba(255,255,255,.3); font-weight: 700; }
 
 
@@ -487,6 +510,7 @@ input  { font-family: inherit; }
 .mm-swords { font-size: 4em; animation: swordPulse 1.4s ease-in-out infinite; }
 @keyframes swordPulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.2) rotate(5deg); } }
 .mm-title  { font-family: 'Lilita One', cursive; font-size: 1.7em; color: var(--gold); }
+/* 31 Hippocampe jaune spinner */
 .mm-spin   { width: 46px; height: 46px; border: 4px solid rgba(255,255,255,.1); border-top-color: var(--gold); border-radius: 50%; animation: spin .85s linear infinite; }
 @keyframes spin    { to{ transform: rotate(360deg); } }
 .mm-status { color: rgba(255,255,255,.45); font-size: .85em; font-weight: 700; }
@@ -498,43 +522,42 @@ input  { font-family: inherit; }
     display: none; position: fixed; inset: 0; z-index: 200;
     flex-direction: column; overflow: hidden;
     font-family: 'Nunito', sans-serif;
-    /* Fond style TCGP */
+    /* Savane/nature : 30 Phyllobate orange → 17 Tortue vert sauge → 62 Napoléon émeraude */
     background: linear-gradient(180deg,
-        #87ceeb 0%,
-        #b3e5fc 30%,
-        #e8f5e9 55%,
-        #a5d6a7 70%,
-        #66bb6a 100%
+        #E8C8A0 0%,
+        #D4B888 25%,
+        #BDC9A8 55%,
+        #8AB898 70%,
+        #3DBF8C 100%
     );
 }
 
-/* Bandeau ennemi / joueur */
-.cbt-header     { flex-shrink: 0; padding: 8px 12px 6px; background: rgba(21,101,192,.25); backdrop-filter: blur(6px); border-bottom: 1.5px solid rgba(255,255,255,.3); }
-.enemy-header   { background: rgba(21,101,192,.3); }
-.player-footer  { background: rgba(27,94,32,.35); border-top: 1.5px solid rgba(255,255,255,.3); }
+.cbt-header     { flex-shrink: 0; padding: 8px 12px 6px; background: rgba(208,60,42,.25); backdrop-filter: blur(6px); border-bottom: 1.5px solid rgba(255,255,255,.3); }
+.enemy-header   { background: rgba(208,60,42,.3); }
+.player-footer  { background: rgba(30,122,88,.35); border-top: 1.5px solid rgba(255,255,255,.3); }
 
 .cbt-player-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
 .cbt-name       { font-family: 'Lilita One', cursive; font-size: 1em; }
-.enemy-name     { color: #b71c1c; }
-.player-name    { color: #1b5e20; }
+/* 29 Corail rouge ennemi */
+.enemy-name     { color: #922A1A; }
+/* 62 Napoléon vert joueur */
+.player-name    { color: #1E7A58; }
 .cbt-pts        { font-size: 1.3em; letter-spacing: 2px; }
-.player-pts     { color: #2e7d32; }
+.player-pts     { color: #1E7A58; }
 
-/* Bancs */
 .cbt-bench { display: flex; justify-content: center; gap: 6px; }
 
-/* Terrain central */
 .cbt-field {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    gap: 0; padding: 8px 12px; position: relative;
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
+    padding: 8px 12px; position: relative;
 }
-.field-side  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; max-width: 45%; }
-.field-label { font-family: 'Lilita One', cursive; font-size: .65em; text-transform: uppercase; letter-spacing: 1px; color: rgba(0,0,0,.4); }
-.enemy-label { color: rgba(183,28,28,.7); }
-.player-label{ color: rgba(27,94,32,.7); }
-.field-vs    { font-family: 'Lilita One', cursive; font-size: 1em; color: rgba(0,0,0,.25); padding: 0 6px; flex-shrink: 0; }
+.field-side  { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; max-width: 180px; }
 
-/* Carte combat (grande) */
+.field-label { font-family: 'Lilita One', cursive; font-size: .65em; text-transform: uppercase; letter-spacing: 1px; color: rgba(0,0,0,.4); }
+.enemy-label { color: rgba(146,42,26,.7); }
+.player-label{ color: rgba(30,122,88,.7); }
+.field-vs    { font-family: 'Lilita One', cursive; font-size: .85em; color: rgba(0,0,0,.25); padding: 2px 0; }
+
 .cbt-card {
     width: 100%; max-width: 150px; aspect-ratio: 2.5/3.5;
     border-radius: 12px; background: white; border: 3px solid rgba(0,0,0,.15);
@@ -542,10 +565,10 @@ input  { font-family: inherit; }
     display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     padding: 8px 6px; position: relative; overflow: hidden; transition: transform .2s;
 }
-.cbt-card.active-card { border-color: #f5c518; box-shadow: 0 0 20px rgba(245,197,24,.7); transform: scale(1.03); }
+/* 31 Hippocampe jaune carte active */
+.cbt-card.active-card { border-color: #E8C93A; box-shadow: 0 0 20px rgba(232,201,58,.7); transform: scale(1.03); }
 .cbt-card.ko-card     { filter: grayscale(100%); opacity: .4; }
 
-/* Carte banc (petite) */
 .cbt-bench-card {
     width: 56px; aspect-ratio: 2.5/3.5;
     border-radius: 8px; background: white; border: 2px solid rgba(0,0,0,.15);
@@ -555,7 +578,6 @@ input  { font-family: inherit; }
 }
 .cbt-bench-card.ko-card { filter: grayscale(100%); opacity: .35; }
 
-/* Éléments partagés entre les deux cartes */
 .cbt-card-type-stripe  { position: absolute; top: 0; left: 0; right: 0; }
 .cbt-card            .cbt-card-type-stripe { height: 5px; }
 .cbt-bench-card      .cbt-card-type-stripe { height: 3px; }
@@ -569,14 +591,16 @@ input  { font-family: inherit; }
 .cbt-hp-bar          { width: 100%; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-bottom: 2px; }
 .cbt-card            .cbt-hp-bar           { height: 7px; }
 .cbt-bench-card      .cbt-hp-bar           { height: 4px; }
-.cbt-hp-fill         { height: 100%; background: #43a047; border-radius: 4px; transition: width .3s; }
-.cbt-hp-fill.mid     { background: #f9a825; }
-.cbt-hp-fill.low     { background: #e53935; }
+/* 62 Napoléon vert HP */
+.cbt-hp-fill         { height: 100%; background: #3DBF8C; border-radius: 4px; transition: width .3s; }
+/* 4 Pygargue or HP mi-chemin */
+.cbt-hp-fill.mid     { background: #D4A017; }
+/* 29 Corail rouge HP bas */
+.cbt-hp-fill.low     { background: #D03C2A; }
 .cbt-hp-txt          { font-family: 'Lilita One', cursive; color: #333; text-align: center; }
 .cbt-card            .cbt-hp-txt           { font-size: .68em; }
 .cbt-bench-card      .cbt-hp-txt           { font-size: .52em; }
 
-/* Journal + actions */
 .cbt-mid {
     flex-shrink: 0; padding: 6px 10px;
     background: rgba(0,0,0,.18); backdrop-filter: blur(4px);
@@ -597,9 +621,12 @@ input  { font-family: inherit; }
     box-shadow: 0 3px 0 rgba(0,0,0,.18);
 }
 .cbt-atk-btn:active        { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
-.cbt-atk-btn.physique      { border-left-color: #e53935; }
-.cbt-atk-btn.spécial       { border-left-color: #8e24aa; }
-.cbt-atk-btn.statut        { border-left-color: #78909c; }
+/* 29 Corail rouge physique */
+.cbt-atk-btn.physique      { border-left-color: #D03C2A; }
+/* 39 Crocodile kaki spécial */
+.cbt-atk-btn.spécial       { border-left-color: #4A5040; }
+/* 57 Cacatoès gris statut */
+.cbt-atk-btn.statut        { border-left-color: #8A9088; }
 .atk-name { font-family: 'Lilita One', cursive; font-size: .82em; color: #1a1a2e; }
 .atk-info { font-size: .68em; color: rgba(0,0,0,.4); font-weight: 700; }
 
@@ -608,7 +635,6 @@ input  { font-family: inherit; }
 
 /* ── 13. MODALS ───────────────────────────────────── */
 
-/* --- Fin de partie --- */
 #end-modal {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,.88); z-index: 400;
@@ -616,8 +642,9 @@ input  { font-family: inherit; }
 }
 .end-box {
     width: 85%; max-width: 310px;
-    background: linear-gradient(180deg, #1a237e, #0d1545);
-    border: 2px solid rgba(255,255,255,.14); border-radius: var(--r);
+    /* 1 Baleine → brun très sombre */
+    background: linear-gradient(180deg, #1C1408, #0D0D08);
+    border: 2px solid rgba(232,201,58,.18); border-radius: var(--r);
     padding: 26px 20px; text-align: center;
     position: relative; overflow: hidden;
     box-shadow: 0 12px 40px rgba(0,0,0,.7);
@@ -629,15 +656,15 @@ input  { font-family: inherit; }
 .end-reason     { font-size: .8em; color: rgba(255,255,255,.4); font-weight: 700; }
 
 .end-rewards    { display: flex; flex-direction: column; gap: 8px; }
-.reward-xp      { background: rgba(245,197,24,.12); border: 1px solid rgba(245,197,24,.3); border-radius: var(--r-sm); padding: 10px; color: var(--gold); font-weight: 800; font-size: .88em; line-height: 1.6; }
-.reward-coins   { background: rgba(245,197,24,.08); border: 1px solid rgba(245,197,24,.25); border-radius: var(--r-sm); padding: 8px; color: var(--gold); font-family: 'Lilita One', cursive; font-size: 1em; }
-.reward-booster { background: rgba(66,165,245,.12); border: 1px solid rgba(66,165,245,.4); border-radius: var(--r-sm); padding: 10px; animation: glowBooster 1.5s ease-in-out infinite; }
-@keyframes glowBooster { 0%,100%{ box-shadow: 0 0 8px rgba(66,165,245,.3); } 50%{ box-shadow: 0 0 20px rgba(66,165,245,.7); } }
-.rb-label { font-family: 'Lilita One', cursive; color: #42a5f5; font-size: .95em; margin-bottom: 3px; }
+.reward-xp      { background: rgba(232,201,58,.12); border: 1px solid rgba(232,201,58,.3); border-radius: var(--r-sm); padding: 10px; color: var(--gold); font-weight: 800; font-size: .88em; line-height: 1.6; }
+.reward-coins   { background: rgba(232,201,58,.08); border: 1px solid rgba(232,201,58,.25); border-radius: var(--r-sm); padding: 8px; color: var(--gold); font-family: 'Lilita One', cursive; font-size: 1em; }
+/* 66 Aigrion bleu-vert booster */
+.reward-booster { background: rgba(168,200,192,.12); border: 1px solid rgba(168,200,192,.4); border-radius: var(--r-sm); padding: 10px; animation: glowBooster 1.5s ease-in-out infinite; }
+@keyframes glowBooster { 0%,100%{ box-shadow: 0 0 8px rgba(168,200,192,.3); } 50%{ box-shadow: 0 0 20px rgba(168,200,192,.7); } }
+.rb-label { font-family: 'Lilita One', cursive; color: #A8C8C0; font-size: .95em; margin-bottom: 3px; }
 .rb-name  { font-size: 1em; font-weight: 900; color: white; }
 .rb-hint  { font-size: .7em; color: rgba(255,255,255,.35); font-weight: 700; }
 
-/* --- Détail de carte --- */
 #card-modal {
     position: fixed; inset: 0; z-index: 500;
     display: flex; align-items: flex-end; justify-content: center;
@@ -645,7 +672,8 @@ input  { font-family: inherit; }
 }
 .card-modal-inner {
     width: 100%; max-width: 430px;
-    background: linear-gradient(180deg, #0d47a1, #072066);
+    /* 6 Dauphin d'Hector bleu acier sombre */
+    background: linear-gradient(180deg, #1C2830, #0D1620);
     border-radius: var(--r) var(--r) 0 0; padding: 18px 16px 24px;
     display: flex; flex-direction: column; gap: 12px;
     max-height: 85vh; overflow-y: auto;
@@ -661,21 +689,23 @@ input  { font-family: inherit; }
 .cmd-stat-v    { font-family: 'Lilita One', cursive; font-size: 1.1em; color: var(--gold); }
 .cmd-stat-l    { font-size: .62em; color: rgba(255,255,255,.4); font-weight: 700; }
 .cmd-moves     { display: flex; flex-direction: column; gap: 6px; }
-.cmd-move      { background: rgba(255,255,255,.05); border-left: 4px solid #42a5f5; border-radius: 6px; padding: 8px 10px; }
-.cmd-move.physique { border-left-color: #ef5350; }
-.cmd-move.spécial  { border-left-color: #ab47bc; }
-.cmd-move.statut   { border-left-color: #78909c; }
+.cmd-move      { background: rgba(255,255,255,.05); border-left: 4px solid #A8C8C0; border-radius: 6px; padding: 8px 10px; }
+.cmd-move.physique { border-left-color: #D03C2A; }
+.cmd-move.spécial  { border-left-color: #4A5040; }
+.cmd-move.statut   { border-left-color: #8A9088; }
 .cmd-move-name { font-family: 'Lilita One', cursive; font-size: .88em; }
 .cmd-move-info { font-size: .7em; color: rgba(255,255,255,.4); font-weight: 700; }
 .cmd-desc      { font-size: .76em; color: rgba(255,255,255,.4); font-style: italic; }
 .cmd-btn       { width: 100%; padding: 12px; font-family: 'Lilita One', cursive; font-size: 1em; border-radius: var(--r-sm); transition: transform .1s; }
-.cmd-btn-add    { background: linear-gradient(180deg, #43a047, #2e7d32); color: white; box-shadow: 0 3px 0 #1b5e20; }
+/* 62 Napoléon vert ajouter */
+.cmd-btn-add    { background: linear-gradient(180deg, #3DBF8C, #2A8A62); color: white; box-shadow: 0 3px 0 #0A3A28; }
 .cmd-btn-add:active { transform: translateY(2px); }
-.cmd-btn-remove { background: rgba(183,28,28,.6); color: white; border: 1px solid #ef5350; }
-.cmd-btn-quiz   { background: linear-gradient(180deg, #f5c518, #d4860a); color: #1a1130; box-shadow: 0 3px 0 #7a4d00; }
+/* 29 Corail rouge retirer */
+.cmd-btn-remove { background: rgba(146,42,26,.6); color: white; border: 1px solid #D03C2A; }
+/* 31 Hippocampe jaune quiz */
+.cmd-btn-quiz   { background: linear-gradient(180deg, #E8C93A, #C4900A); color: #0D0D0D; box-shadow: 0 3px 0 #6A4E00; }
 .cmd-locked-msg { text-align: center; color: rgba(255,255,255,.35); font-size: .82em; font-weight: 700; }
 
-/* --- Coffre --- */
 #chest-modal {
     position: fixed; inset: 0; z-index: 500;
     display: flex; align-items: center; justify-content: center;
@@ -683,8 +713,8 @@ input  { font-family: inherit; }
 }
 .chest-modal-inner {
     width: 85%; max-width: 300px;
-    background: linear-gradient(180deg, #1a1130, #231a42);
-    border: 2px solid rgba(255,255,255,.15); border-radius: var(--r);
+    background: linear-gradient(180deg, #0D0D0D, #1C1408);
+    border: 2px solid rgba(232,201,58,.18); border-radius: var(--r);
     padding: 22px 18px; text-align: center;
     display: flex; flex-direction: column; gap: 14px;
     box-shadow: 0 12px 40px rgba(0,0,0,.8);
@@ -692,8 +722,9 @@ input  { font-family: inherit; }
 .chest-m-icon      { font-size: 3.5em; animation: packFloat 2s ease-in-out infinite; }
 .chest-m-title     { font-family: 'Lilita One', cursive; font-size: 1.2em; }
 .chest-m-body      { font-size: .85em; color: rgba(255,255,255,.5); font-weight: 700; line-height: 1.5; }
-.chest-m-cost      { background: rgba(245,197,24,.15); border: 1px solid rgba(245,197,24,.35); border-radius: var(--r-sm); padding: 8px; color: var(--gold); font-family: 'Lilita One', cursive; font-size: 1em; }
-.chest-m-card      { background: rgba(66,165,245,.1); border: 1.5px solid rgba(66,165,245,.4); border-radius: var(--r-sm); padding: 12px; }
+.chest-m-cost      { background: rgba(232,201,58,.15); border: 1px solid rgba(232,201,58,.35); border-radius: var(--r-sm); padding: 8px; color: var(--gold); font-family: 'Lilita One', cursive; font-size: 1em; }
+/* 66 Aigrion bleu-vert carte coffre */
+.chest-m-card      { background: rgba(168,200,192,.1); border: 1.5px solid rgba(168,200,192,.4); border-radius: var(--r-sm); padding: 12px; }
 .chest-m-card-name { font-family: 'Lilita One', cursive; font-size: 1.1em; }
 .chest-m-card-hint { font-size: .72em; color: rgba(255,255,255,.4); font-weight: 700; margin-top: 4px; }
 .chest-m-btns      { display: flex; flex-direction: column; gap: 8px; }
@@ -708,38 +739,37 @@ input  { font-family: inherit; }
 }
 .quiz-panel {
     width: 100%; max-width: 430px;
-    background: linear-gradient(180deg, #0d1b3e 0%, #071230 100%);
-    border-radius: var(--r) var(--r) 0 0; border-top: 2px solid rgba(255,255,255,.12);
+    /* 1 Baleine noir → brun très sombre */
+    background: linear-gradient(180deg, #1C1408 0%, #0D0D08 100%);
+    border-radius: var(--r) var(--r) 0 0; border-top: 2px solid rgba(232,201,58,.15);
     padding: 0 0 28px; max-height: 96vh; overflow-y: auto;
     display: flex; flex-direction: column;
 }
 
-/* En-tête carte */
 .quiz-card-header { display: flex; align-items: center; gap: 14px; padding: 18px 18px 14px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); }
 .qch-emoji        { font-size: 2.8em; }
 .qch-info         { flex: 1; }
 .qch-name         { font-family: 'Lilita One', cursive; font-size: 1.2em; color: #fff; }
 .qch-sub          { font-size: .75em; color: rgba(255,255,255,.4); font-weight: 700; margin-top: 2px; }
 
-/* Barre de progression */
 .quiz-progress-wrap   { padding: 14px 18px 6px; }
 .quiz-progress-labels { display: flex; justify-content: space-between; font-size: .72em; font-weight: 800; color: rgba(255,255,255,.4); margin-bottom: 7px; }
 .quiz-progress-track  { height: 8px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; }
-.quiz-progress-fill   { height: 100%; background: linear-gradient(90deg, #42a5f5, #1565c0); border-radius: 4px; transition: width .4s cubic-bezier(.4,0,.2,1); }
+/* 66 Aigrion bleu-vert → 6 Dauphin acier */
+.quiz-progress-fill   { height: 100%; background: linear-gradient(90deg, #A8C8C0, #5A7A98); border-radius: 4px; transition: width .4s cubic-bezier(.4,0,.2,1); }
 
-/* Points de score */
 .quiz-score-dots { display: flex; justify-content: center; gap: 8px; padding: 8px 18px 16px; }
 .qsd             { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,.2); transition: .25s; }
-.qsd.correct     { background: #43a047; border-color: #66bb6a; box-shadow: 0 0 10px rgba(67,160,71,.6); }
-.qsd.wrong       { background: #e53935; border-color: #ef5350; box-shadow: 0 0 10px rgba(229,57,53,.5); }
+/* 62 Napoléon vert correct */
+.qsd.correct     { background: #3DBF8C; border-color: #5AD4A8; box-shadow: 0 0 10px rgba(61,191,140,.6); }
+/* 29 Corail rouge wrong */
+.qsd.wrong       { background: #D03C2A; border-color: #E05040; box-shadow: 0 0 10px rgba(208,60,42,.5); }
 .qsd.pending     { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.15); }
 
-/* Question */
 .quiz-question-wrap { padding: 0 18px 16px; }
 .quiz-q-num         { font-size: .7em; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 8px; }
 .quiz-question      { font-family: 'Lilita One', cursive; font-size: 1.12em; color: #fff; line-height: 1.4; }
 
-/* Choix de réponse */
 .quiz-choices { display: flex; flex-direction: column; gap: 9px; padding: 0 18px; }
 .quiz-choice  {
     width: 100%; padding: 13px 16px;
@@ -753,31 +783,34 @@ input  { font-family: inherit; }
 .quiz-choice:active                  { transform: scale(.98); }
 .quiz-choice:not(.locked):hover      { background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.25); }
 .quiz-choice.locked                  { pointer-events: none; }
-.quiz-choice.selected                { background: rgba(66,165,245,.15); border-color: #42a5f5; }
-.quiz-choice.correct-ans             { background: rgba(67,160,71,.25); border-color: #66bb6a; animation: correctPop .35s ease-out; }
-.quiz-choice.wrong-ans               { background: rgba(229,57,53,.2); border-color: #ef5350; }
+/* 66 Aigrion bleu-vert sélection */
+.quiz-choice.selected                { background: rgba(168,200,192,.15); border-color: #A8C8C0; }
+/* 62 Napoléon vert correct */
+.quiz-choice.correct-ans             { background: rgba(61,191,140,.25); border-color: #5AD4A8; animation: correctPop .35s ease-out; }
+/* 29 Corail rouge wrong */
+.quiz-choice.wrong-ans               { background: rgba(208,60,42,.2); border-color: #D03C2A; }
 
 @keyframes correctPop { 0%{ transform: scale(1); } 40%{ transform: scale(1.03); } 100%{ transform: scale(1); } }
 
 .qc-letter { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-family: 'Lilita One', cursive; font-size: .78em; flex-shrink: 0; transition: .2s; }
-.quiz-choice.correct-ans .qc-letter  { background: #43a047; border-color: #66bb6a; }
-.quiz-choice.wrong-ans   .qc-letter  { background: #e53935; border-color: #ef5350; }
+.quiz-choice.correct-ans .qc-letter  { background: #3DBF8C; border-color: #5AD4A8; }
+.quiz-choice.wrong-ans   .qc-letter  { background: #D03C2A; border-color: #E05040; }
 .qc-text   { flex: 1; line-height: 1.3; }
 .qc-icon   { font-size: 1.1em; flex-shrink: 0; }
 
-/* Feedback */
 .quiz-feedback      { margin: 10px 18px 0; padding: 10px 14px; border-radius: var(--r-sm); font-size: .84em; font-weight: 800; text-align: center; min-height: 40px; opacity: 0; transition: opacity .3s; }
 .quiz-feedback.show { opacity: 1; }
-.quiz-feedback.ok   { background: rgba(67,160,71,.2);  border: 1px solid rgba(67,160,71,.4);  color: #a5d6a7; }
-.quiz-feedback.bad  { background: rgba(229,57,53,.15); border: 1px solid rgba(229,57,53,.3);  color: #ef9a9a; }
+/* 62 Napoléon vert ok */
+.quiz-feedback.ok   { background: rgba(61,191,140,.2);  border: 1px solid rgba(61,191,140,.4);  color: #A0E8D0; }
+/* 29 Corail rouge bad */
+.quiz-feedback.bad  { background: rgba(208,60,42,.15); border: 1px solid rgba(208,60,42,.3);  color: #EF9A9A; }
 
-/* Bouton suivant */
 .quiz-next-wrap { padding: 14px 18px 0; }
-.quiz-next      { width: 100%; padding: 13px; background: linear-gradient(180deg, #f5c518, #d4860a); color: #1a1130; font-family: 'Lilita One', cursive; font-size: 1.05em; border-radius: var(--r-sm); box-shadow: 0 4px 0 #7a4d00; opacity: 0; pointer-events: none; transition: opacity .25s, transform .1s; }
+/* 31 Hippocampe jaune bouton suivant */
+.quiz-next      { width: 100%; padding: 13px; background: linear-gradient(180deg, #E8C93A, #C4900A); color: #0D0D0D; font-family: 'Lilita One', cursive; font-size: 1.05em; border-radius: var(--r-sm); box-shadow: 0 4px 0 #6A4E00; opacity: 0; pointer-events: none; transition: opacity .25s, transform .1s; }
 .quiz-next.show       { opacity: 1; pointer-events: auto; }
-.quiz-next:active     { transform: translateY(3px); box-shadow: 0 1px 0 #7a4d00; }
+.quiz-next:active     { transform: translateY(3px); box-shadow: 0 1px 0 #6A4E00; }
 
-/* Écran de résultat */
 .quiz-result { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 28px 20px; }
 .qr-emoji    { font-size: 4em; animation: resultPop .5s cubic-bezier(.34,1.56,.64,1); }
 @keyframes resultPop { from{ transform: scale(0); } to{ transform: scale(1); } }
@@ -785,7 +818,7 @@ input  { font-family: inherit; }
 .qr-score    { font-family: 'Lilita One', cursive; font-size: 1.1em; color: rgba(255,255,255,.6); }
 .qr-score b  { color: #fff; font-size: 1.3em; }
 .qr-stars    { display: flex; gap: 6px; font-size: 2em; }
-.qr-xp       { background: rgba(245,197,24,.12); border: 1px solid rgba(245,197,24,.3); border-radius: var(--r-sm); padding: 10px 20px; font-family: 'Lilita One', cursive; font-size: 1em; color: var(--gold); text-align: center; width: 100%; }
+.qr-xp       { background: rgba(232,201,58,.12); border: 1px solid rgba(232,201,58,.3); border-radius: var(--r-sm); padding: 10px 20px; font-family: 'Lilita One', cursive; font-size: 1em; color: var(--gold); text-align: center; width: 100%; }
 .qr-fail-hint{ font-size: .82em; color: rgba(255,255,255,.4); font-weight: 800; text-align: center; line-height: 1.5; }
 .qr-btns     { display: flex; flex-direction: column; gap: 9px; width: 100%; }
 
@@ -795,7 +828,8 @@ input  { font-family: inherit; }
 #toast {
     position: fixed; bottom: 70px; left: 50%;
     transform: translateX(-50%) translateY(10px);
-    background: rgba(20,10,45,.95); color: white;
+    /* 1 Baleine noir */
+    background: rgba(13,13,8,.95); color: white;
     padding: 9px 18px; border-radius: 22px;
     font-size: .84em; font-weight: 800;
     opacity: 0; transition: .28s; z-index: 700;
@@ -804,15 +838,23 @@ input  { font-family: inherit; }
     box-shadow: 0 4px 16px rgba(0,0,0,.5);
 }
 #toast.show    { opacity: 1; transform: translateX(-50%) translateY(0); }
-#toast.success { border-color: #66bb6a; background: rgba(27,94,32,.95); }
-#toast.error   { border-color: #ef5350; background: rgba(183,28,28,.95); }
-#toast.info    { border-color: #42a5f5; background: rgba(13,71,161,.95); }
+/* 62 Napoléon vert success */
+#toast.success { border-color: #3DBF8C; background: rgba(30,122,88,.95); }
+/* 29 Corail rouge error */
+#toast.error   { border-color: #D03C2A; background: rgba(146,42,26,.95); }
+/* 66 Aigrion bleu-vert info */
+#toast.info    { border-color: #A8C8C0; background: rgba(90,122,152,.95); }
 
 
 /* ── 16. WIDGET WELCOME BONUS ─────────────────────── */
 
 .wb-left  { display: flex; align-items: center; gap: 12px; }
 .wb-icon  { font-size: 1.8em; }
-.wb-title { font-family: 'Lilita One', cursive; font-size: .95em; color: #f5c518; }
+/* 31 Hippocampe jaune */
+.wb-title { font-family: 'Lilita One', cursive; font-size: .95em; color: #E8C93A; }
 .wb-sub   { font-size: .78em; color: rgba(255,255,255,.7); font-weight: 700; margin-top: 2px; }
-.wb-btn   { flex-shrink: 0; background: linear-gradient(135deg, #f5c518, #ff9800); color: #1a1a2e; border: none; border-radius: 10px; padding: 8px 14px; font-family: 'Lilita One', cursive; font-size: .85em; cursor: pointer; white-space: nowrap; }
+/* 27 Monarque orange → 31 Hippocampe jaune */
+.wb-btn   { flex-shrink: 0; background: linear-gradient(135deg, #E8C93A, #E8671A); color: #0D0D0D; border: none; border-radius: 10px; padding: 8px 14px; font-family: 'Lilita One', cursive; font-size: .85em; cursor: pointer; white-space: nowrap; }
+
+@keyframes fadeInOverlay { from{ opacity:0 } to{ opacity:1 } }
+@keyframes popIn { from{ transform:scale(.8); opacity:0 } to{ transform:scale(1); opacity:1 } }

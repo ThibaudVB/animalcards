@@ -4,6 +4,7 @@ const API = 'http://localhost:3000';
 // ─── STATE ─────────────────────────────────────────────────────────────────
 let myDeck = [], inventory = [], playerLevel = 1, coins = 0;
 let socket = null, opponent = '';
+let turnLocked = false;
 let boosterAvailability = { freeBoostersLeft: 0, winsBoostersAvailable: 0, winsTotal: 0 };
 
 // ─── UTILS ─────────────────────────────────────────────────────────────────
@@ -29,17 +30,34 @@ function showToast(msg, type = 'info') {
     clearTimeout(_toastT); _toastT = setTimeout(() => el.className = '', 3200);
 }
 
-const EMOJI = { 'Girafe': '🦒', 'Requin-marteau': '🦈', 'Tigre': '🐯' };
+// ─── IMAGE HELPERS ──────────────────────────────────────────────────────────
+// Convertit un nom d'animal en slug de fichier : "Requin-marteau" → "requin-marteau"
+function cardSlug(name) {
+    return name.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // supprime accents
+        .replace(/\s+/g, '-')          // espaces → tirets
+        .replace(/[^a-z0-9-]/g, '');  // supprime caractères spéciaux
+}
+
+// Image pour la collection (avec texte)
+function cardImgFull(name) {
+    return `/cards/full/${cardSlug(name)}.png`;
+}
+
+// Image pour le combat (sans texte)
+function cardImgFight(name) {
+    return `/cards/fight/${cardSlug(name)}.png`;
+}
+
 const RCOL = { commun: '#9e9e9e', rare: '#42a5f5', épique: '#ab47bc', légendaire: '#f5c518' };
-const RCL = { commun: 'rc', rare: 'rr', épique: 're', légendaire: 'rl' };
-function em(name) { return EMOJI[name] || '🐾'; }
+const RCL  = { commun: 'rc', rare: 'rr', épique: 're', légendaire: 'rl' };
 function rcol(r) { return RCOL[r] || '#9e9e9e'; }
-function rcl(r) { return RCL[r] || 'rc'; }
+function rcl(r)  { return RCL[r]  || 'rc'; }
 
 // ─── NAVIGATION + SWIPE ────────────────────────────────────────────────────
-const slider = document.getElementById('slider');
+const slider   = document.getElementById('slider');
 const viewport = document.getElementById('viewport');
-const navBtns = document.querySelectorAll('.nb');
+const navBtns  = document.querySelectorAll('.nb');
 let currentTab = 0;
 let touchStartX = 0, touchStartY = 0, isSwiping = false;
 
@@ -142,15 +160,15 @@ async function loadInventory() {
     if (!r || !r.ok) return;
     const d = await r.json();
     inventory = d.inventory;
-    myDeck = d.deck;
+    myDeck    = d.deck;
     playerLevel = d.level;
     coins = d.coins ?? 0;
     updateTopBar(d);
 
     boosterAvailability = {
-        freeBoostersLeft: d.freeBoostersLeft ?? 0,
+        freeBoostersLeft:      d.freeBoostersLeft ?? 0,
         winsBoostersAvailable: d.winsBoostersAvailable ?? 0,
-        winsTotal: d.stats?.wins || 0
+        winsTotal:             d.stats?.wins || 0
     };
 
     renderDeckView();
@@ -160,7 +178,6 @@ async function loadInventory() {
 
 // ─── HOME ───────────────────────────────────────────────────────────────────
 function refreshHome() {
-    // Welcome banner — visible only while free boosters remain
     const banner = document.getElementById('welcome-banner');
     if (banner) {
         const n = boosterAvailability.freeBoostersLeft;
@@ -181,10 +198,9 @@ function refreshHome() {
         }
     }
 
-    // Lock / deck warn
     const lock = document.getElementById('home-lock');
     const warn = document.getElementById('home-deck-warn');
-    const btn = document.getElementById('battle-btn');
+    const btn  = document.getElementById('battle-btn');
     if (playerLevel < 2) {
         lock.style.display = 'block'; warn.style.display = 'none';
         btn.classList.add('disabled');
@@ -194,34 +210,47 @@ function refreshHome() {
         else { warn.style.display = 'none'; btn.classList.remove('disabled'); }
     }
 
-    // Deck strip
+    // Deck strip — miniatures images
     const dsc = document.getElementById('ds-cards');
     if (myDeck.length === 0) { dsc.innerHTML = '<span class="ds-empty">Aucune carte</span>'; return; }
     dsc.innerHTML = myDeck.map(id => {
         const c = inventory.find(x => x.id === id);
-        return c ? `<div class="ds-mini">${em(c.name)} ${c.name}</div>` : '';
+        if (!c) return '';
+        return `<div class="ds-mini" style="display:flex;align-items:center;gap:4px">
+            <img src="${cardImgFull(c.name)}" alt="${c.name}"
+                 style="width:22px;height:30px;object-fit:cover;border-radius:3px"
+                 onerror="this.style.display='none'">
+            <span>${c.name}</span>
+        </div>`;
     }).join('');
 }
 
 // ─── INVENTORY / DECK VIEW ──────────────────────────────────────────────────
 function renderDeckView() {
-    const grid = document.getElementById('deck-grid');
+    const grid     = document.getElementById('deck-grid');
     const countLbl = document.getElementById('deck-count-lbl');
     if (!grid) return;
     countLbl.innerText = `${myDeck.length}/3`;
+
     grid.innerHTML = [0, 1, 2].map(i => {
         const id = myDeck[i];
-        if (!id) return `<div class="dslot"><span class="dslot-empty-lbl">Slot ${i + 1}</span><span style="font-size:1.4em;opacity:.15">+</span></div>`;
+        if (!id) return `<div class="dslot">
+            <span class="dslot-empty-lbl">Slot ${i + 1}</span>
+            <span style="font-size:1.4em;opacity:.15">+</span>
+        </div>`;
         const c = inventory.find(x => x.id === id);
         if (!c) return '';
         return `<div class="dslot filled" onclick="openCardModal(${c.id})">
             <button class="dslot-remove" onclick="event.stopPropagation();removeDeckCard(${c.id})">✕</button>
-            <div class="dslot-emoji">${em(c.name)}</div>
+            <img src="${cardImgFull(c.name)}" alt="${c.name}"
+                 style="width:100%;flex:1;object-fit:contain;border-radius:6px;min-height:0"
+                 onerror="this.style.opacity='.3'">
             <div class="dslot-name">${c.name}</div>
             <div class="dslot-stats">❤️${c.hp} ⚡${c.speed}</div>
             <div class="dslot-rbar" style="background:${rcol(c.rarity)}"></div>
         </div>`;
     }).join('');
+
     const ig = document.getElementById('inv-grid');
     if (ig) ig.innerHTML = buildInvCards(inventory);
 }
@@ -229,12 +258,17 @@ function renderDeckView() {
 function buildInvCards(cards) {
     return cards.map(c => {
         const inDeck = myDeck.includes(c.id);
-        return `<div class="icard ${c.status === 'locked' ? 'ilocked' : ''} ${c.status === 'pending' ? 'ipending' : ''} ${inDeck ? 'ideck' : ''}"
-             onclick="openCardModal(${c.id})">
-            ${c.status === 'locked' ? '<div class="icard-overlay">🔒</div>' : ''}
-            ${c.status === 'pending' ? '<div class="icard-overlay">❓</div>' : ''}
+        return `<div class="icard
+                    ${c.status === 'locked'  ? 'ilocked'  : ''}
+                    ${c.status === 'pending' ? 'ipending' : ''}
+                    ${inDeck ? 'ideck' : ''}"
+                onclick="openCardModal(${c.id})">
+            ${c.status === 'locked'  ? '<div class="icard-overlay">🔒</div>' : ''}
+            ${c.status === 'pending' ? '<div class="icard-overlay">❓</div>'  : ''}
             ${inDeck ? '<div class="icard-deck-badge">DECK</div>' : ''}
-            <div class="icard-emoji">${em(c.name)}</div>
+            <img src="${cardImgFull(c.name)}" alt="${c.name}"
+                 style="width:100%;flex:1;object-fit:contain;border-radius:6px;min-height:0"
+                 onerror="this.style.opacity='.3'">
             <div class="icard-name">${c.name}</div>
             <div class="icard-hp">❤️${c.hp}</div>
             <div class="icard-rbar ${rcl(c.rarity)}"></div>
@@ -245,7 +279,7 @@ function buildInvCards(cards) {
 window.switchCardTab = function (btn, tab) {
     document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('ctab-deck').style.display = tab === 'deck' ? 'block' : 'none';
+    document.getElementById('ctab-deck').style.display       = tab === 'deck'       ? 'block' : 'none';
     document.getElementById('ctab-collection').style.display = tab === 'collection' ? 'block' : 'none';
     if (tab === 'collection') renderCollection();
 };
@@ -280,15 +314,17 @@ window.openCardModal = function (cardId) {
     if (!c) return;
     const inDeck = myDeck.includes(c.id);
     let action = '';
-    if (c.status === 'locked') action = `<div class="cmd-locked-msg">🔒 Ouvre un booster pour débloquer cette carte</div>`;
-    else if (c.status === 'pending') action = `<button class="cmd-btn cmd-btn-quiz" onclick="doQuiz(${c.id})">❓ Passer le quiz (+50 XP)</button>`;
-    else if (inDeck) action = `<button class="cmd-btn cmd-btn-remove" onclick="removeDeckCard(${c.id});closeCardModal()">− Retirer du deck</button>`;
-    else if (myDeck.length < 3) action = `<button class="cmd-btn cmd-btn-add" onclick="addDeckCard(${c.id});closeCardModal()">+ Ajouter au deck</button>`;
-    else action = `<div class="cmd-locked-msg">Deck plein (3/3) — retire une carte d'abord</div>`;
+    if (c.status === 'locked')        action = `<div class="cmd-locked-msg">🔒 Ouvre un booster pour débloquer cette carte</div>`;
+    else if (c.status === 'pending')  action = `<button class="cmd-btn cmd-btn-quiz" onclick="doQuiz(${c.id})">❓ Passer le quiz (+50 XP)</button>`;
+    else if (inDeck)                  action = `<button class="cmd-btn cmd-btn-remove" onclick="removeDeckCard(${c.id});closeCardModal()">− Retirer du deck</button>`;
+    else if (myDeck.length < 3)       action = `<button class="cmd-btn cmd-btn-add" onclick="addDeckCard(${c.id});closeCardModal()">+ Ajouter au deck</button>`;
+    else                              action = `<div class="cmd-locked-msg">Deck plein (3/3) — retire une carte d'abord</div>`;
 
     document.getElementById('card-modal-inner').innerHTML = `
         <div class="cmd-head">
-            <div class="cmd-emoji">${em(c.name)}</div>
+            <img src="${cardImgFull(c.name)}" alt="${c.name}"
+                    style="width:70px;height:98px;object-fit:contain;border-radius:8px;flex-shrink:0"
+                    onerror="this.style.opacity='.3'">
             <div class="cmd-title">
                 <div class="cmd-name">${c.name}</div>
                 <div class="cmd-type">${c.type} · <span style="color:${rcol(c.rarity)};font-weight:900">${c.rarity}</span></div>
@@ -360,7 +396,9 @@ function renderQuiz() {
 
     panel.innerHTML = `
         <div class="quiz-card-header">
-            <div class="qch-emoji">${em(cardName)}</div>
+            <img src="${cardImgFull(cardName)}" alt="${cardName}"
+                    style="width:52px;height:72px;object-fit:contain;border-radius:6px;flex-shrink:0"
+                    onerror="this.style.opacity='.3'">
             <div class="qch-info">
                 <div class="qch-name">${cardName}</div>
                 <div class="qch-sub">Quiz de déblocage · ${total} questions</div>
@@ -462,7 +500,9 @@ async function showQuizResult() {
                 <div class="qr-stars">${stars}</div>
                 <div class="qr-score"><b>${score}/${total}</b> bonnes réponses</div>
                 <div class="qr-xp">+${xpGain} XP gagné !${leveledUp ? `<br>🎊 NIVEAU ${newLevel} !` : ''}</div>
-                <div style="font-size:2.5em">${em(quizState.cardName)}</div>
+                <img src="${cardImgFull(quizState.cardName)}" alt="${quizState.cardName}"
+                        style="width:90px;height:126px;object-fit:contain;border-radius:10px;margin:4px auto"
+                        onerror="this.style.opacity='.3'">
                 <div style="font-family:'Lilita One',cursive;font-size:1.1em;color:#fff">${quizState.cardName}</div>
                 <div style="font-size:.78em;color:rgba(255,255,255,.4);font-weight:700">Disponible dans ton deck !</div>
                 <div class="qr-btns"><button class="btn-primary" onclick="closeQuiz(true)">Retour à la collection</button></div>
@@ -496,12 +536,12 @@ function renderBoutiqueState() {
     const totalFree = freeBoostersLeft + winsBoostersAvailable;
     const canAfford = coins >= 1000;
 
-    const freeBtn = document.getElementById('open-booster-btn');
+    const freeBtn  = document.getElementById('open-booster-btn');
     const freeInfo = document.getElementById('booster-free-info');
     if (freeBtn) {
-        freeBtn.disabled = totalFree === 0;
+        freeBtn.disabled    = totalFree === 0;
         freeBtn.style.opacity = totalFree === 0 ? '0.4' : '1';
-        freeBtn.style.cursor = totalFree === 0 ? 'not-allowed' : 'pointer';
+        freeBtn.style.cursor  = totalFree === 0 ? 'not-allowed' : 'pointer';
     }
     if (freeInfo) {
         if (freeBoostersLeft > 0) {
@@ -517,12 +557,12 @@ function renderBoutiqueState() {
         }
     }
 
-    const paidBtn = document.getElementById('buy-booster-btn');
+    const paidBtn  = document.getElementById('buy-booster-btn');
     const paidInfo = document.getElementById('booster-paid-info');
     if (paidBtn) {
-        paidBtn.disabled = !canAfford;
+        paidBtn.disabled    = !canAfford;
         paidBtn.style.opacity = !canAfford ? '0.4' : '1';
-        paidBtn.style.cursor = !canAfford ? 'not-allowed' : 'pointer';
+        paidBtn.style.cursor  = !canAfford ? 'not-allowed' : 'pointer';
     }
     if (paidInfo) {
         if (canAfford) {
@@ -551,14 +591,16 @@ async function openBooster(buyWithCoins = false) {
         resultEl.style.display = 'block';
         resultEl.innerHTML = `
             <div style="font-size:.78em;font-weight:900;color:rgba(255,255,255,.45);margin-bottom:8px">${sourceLabel}</div>
-            <div style="font-size:2.8em;margin-bottom:8px">${em(c.name)}</div>
+            <img src="${cardImgFull(c.name)}" alt="${c.name}"
+                    style="width:90px;height:126px;object-fit:contain;border-radius:10px;margin:0 auto 8px;display:block"
+                    onerror="this.style.opacity='.3'">
             <div style="font-family:'Lilita One',cursive;font-size:1.2em">${c.name}</div>
             <div style="font-size:.8em;color:rgba(255,255,255,.5);margin:4px 0">${c.type}</div>
             <span style="background:${rcol(c.rarity)};color:#fff;padding:2px 10px;border-radius:10px;font-size:.72em;font-weight:900">${c.rarity}</span>
             <div style="margin-top:10px;font-size:.78em;color:rgba(255,255,255,.5);font-weight:700">❓ Quiz disponible dans ta collection</div>`;
 
         showToast(`📦 ${c.name} obtenu !`, 'success');
-        boosterAvailability.freeBoostersLeft = d.freeBoostersLeft;
+        boosterAvailability.freeBoostersLeft      = d.freeBoostersLeft;
         boosterAvailability.winsBoostersAvailable = d.winsBoostersAvailable;
         coins = d.coins ?? coins;
         updateTopBar({ level: playerLevel, xp: 0, xpNeeded: playerLevel * 100, coins });
@@ -605,7 +647,10 @@ async function loadFriends() {
         document.getElementById('req-count').innerText = d.requests.length;
         document.getElementById('friend-requests-list').innerHTML = d.requests.map(req => `
             <div class="pr-row"><div class="pr-info"><span class="pr-name">${req}</span><span class="pr-meta">Demande d'ami</span></div>
-            <div class="pr-actions"><button class="btn-sm btn-green" onclick="acceptFReq('${req}')">✓</button><button class="btn-sm btn-red" onclick="rejectFReq('${req}')">✕</button></div></div>`).join('');
+            <div class="pr-actions">
+                <button class="btn-sm btn-green" onclick="acceptFReq('${req}')">✓</button>
+                <button class="btn-sm btn-red"   onclick="rejectFReq('${req}')">✕</button>
+            </div></div>`).join('');
     } else reqBox.style.display = 'none';
     document.getElementById('friends-list').innerHTML = d.friends.length === 0
         ? '<span class="empty-hint">Aucun ami. Recherche des joueurs !</span>'
@@ -614,9 +659,9 @@ async function loadFriends() {
             <button class="btn-sm btn-grey" onclick="removeFriend('${f.username}')">Retirer</button></div>`).join('');
 }
 
-window.sendFReq = async u => { const r = await api('/api/friends/request', { method: 'POST', body: JSON.stringify({ targetUsername: u }) }); if (r) { const d = await r.json(); showToast(r.ok ? d.message : d.error, r.ok ? 'success' : 'error'); } };
-window.acceptFReq = async u => { const r = await api('/api/friends/accept', { method: 'POST', body: JSON.stringify({ senderUsername: u }) }); if (r && r.ok) { showToast('Ami ajouté 🎉', 'success'); loadFriends(); } };
-window.rejectFReq = async u => { await api('/api/friends/reject', { method: 'POST', body: JSON.stringify({ senderUsername: u }) }); loadFriends(); };
+window.sendFReq    = async u => { const r = await api('/api/friends/request', { method: 'POST', body: JSON.stringify({ targetUsername: u }) }); if (r) { const d = await r.json(); showToast(r.ok ? d.message : d.error, r.ok ? 'success' : 'error'); } };
+window.acceptFReq  = async u => { const r = await api('/api/friends/accept',  { method: 'POST', body: JSON.stringify({ senderUsername: u }) }); if (r && r.ok) { showToast('Ami ajouté 🎉', 'success'); loadFriends(); } };
+window.rejectFReq  = async u => { await api('/api/friends/reject', { method: 'POST', body: JSON.stringify({ senderUsername: u }) }); loadFriends(); };
 window.removeFriend = async u => { if (!confirm(`Retirer ${u} ?`)) return; await api('/api/friends/remove', { method: 'POST', body: JSON.stringify({ friendUsername: u }) }); loadFriends(); };
 
 // ─── SCOREBOARD ─────────────────────────────────────────────────────────────
@@ -635,15 +680,22 @@ async function loadScoreboard() {
     sbData = d.scoreboard; window._me = d.currentUser; renderScoreboard();
 }
 function renderScoreboard() {
-    const sorted = [...sbData].sort((a, b) => sbSort === 'level' ? b.level - a.level || b.wins - a.wins : sbSort === 'wins' ? b.wins - a.wins : sbSort === 'winRate' ? b.winRate - a.winRate : b.totalCards - a.totalCards);
+    const sorted = [...sbData].sort((a, b) =>
+        sbSort === 'level'    ? b.level - a.level || b.wins - a.wins :
+        sbSort === 'wins'     ? b.wins - a.wins :
+        sbSort === 'winRate'  ? b.winRate - a.winRate :
+                                b.totalCards - a.totalCards
+    );
     const M = ['🥇', '🥈', '🥉'];
     document.getElementById('scoreboard').innerHTML = sorted.map((p, i) => {
         const me = p.username === window._me;
         const cl = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
         return `<div class="sc-row ${cl} ${me ? 'me' : ''}">
             ${i < 3 ? `<div class="sc-medal">${M[i]}</div>` : `<div class="sc-num">#${i + 1}</div>`}
-            <div class="sc-info"><div class="sc-name">${p.username}${me ? ' <span style="color:#42a5f5;font-size:.72em">(toi)</span>' : ''}</div>
-            <div class="sc-sub">Nv.${p.level} · ${p.totalCards} cartes · ${p.winRate}% WR</div></div>
+            <div class="sc-info">
+                <div class="sc-name">${p.username}${me ? ' <span style="color:#42a5f5;font-size:.72em">(toi)</span>' : ''}</div>
+                <div class="sc-sub">Nv.${p.level} · ${p.totalCards} cartes · ${p.winRate}% WR</div>
+            </div>
             <div class="sc-wl"><div class="sc-w">${p.wins}V</div><div class="sc-l">${p.losses}D</div></div>
         </div>`;
     }).join('');
@@ -655,6 +707,7 @@ function initSocket() {
     socket = io(API, { auth: { token: getToken() } });
     socket.on('connect_error', err => { if (err.message.includes('Token')) { localStorage.clear(); location.reload(); } });
     socket.on('matchmaking_error', d => { document.getElementById('mm-overlay').style.display = 'none'; showToast(d.message, 'error'); });
+
     socket.on('match_state', d => {
         opponent = d.opponent;
         document.getElementById('mm-overlay').style.display = 'none';
@@ -665,11 +718,22 @@ function initSocket() {
         document.getElementById('cbt-log').innerHTML = `Duel vs <b>${d.opponent}</b> ! Choisis ton attaque !`;
         updateBoard(d);
     });
+
     socket.on('turn_result', d => {
-        document.getElementById('cbt-log').innerHTML = d.logs.join('<br>');
-        updateBoard(d.state);
-        if (!d.isOver) setTimeout(() => { document.getElementById('cbt-log').innerHTML += '<br><em style="color:rgba(0,0,0,.4)">Attaque !</em>'; }, 750);
+        if (d.isOver) {
+            updateBoard(d.state);
+            return;
+        }
+        const logs = d.logs?.length ? d.logs : ['Tour terminé'];
+        showTurnSummary(logs, () => {
+            document.getElementById('cbt-log').innerHTML = logs.join('<br>');
+            updateBoard(d.state);
+            setTimeout(() => {
+                document.getElementById('cbt-log').innerHTML += '<br><em style="color:rgba(0,0,0,.4)">Attaque !</em>';
+            }, 300);
+        });
     });
+
     socket.on('match_end', d => showEndModal(d));
     socket.on('friend_request', d => { showToast(`📨 ${d.from} t'a envoyé une demande !`, 'info'); });
     socket.on('friend_accepted', d => { showToast(`✅ ${d.by} a accepté ta demande !`, 'success'); });
@@ -680,13 +744,16 @@ const TYPE_COLOR = { Mammifère: '#8d6e63', Poisson: '#29b6f6', Reptile: '#66bb6
 function tc(card) { return TYPE_COLOR[card.type] || '#9e9e9e'; }
 function hpClass(cur, max) { const p = cur / max; return p > .5 ? '' : p > .25 ? 'mid' : 'low'; }
 
+// Grande carte en combat (image sans texte)
 function bigCard(card, isActive) {
     if (!card) return '';
-    const ko = card.currentHp <= 0;
+    const ko  = card.currentHp <= 0;
     const pct = Math.max(0, (card.currentHp / card.hp) * 100);
     return `<div class="cbt-card ${isActive ? 'active-card' : ''} ${ko ? 'ko-card' : ''}">
         <div class="cbt-card-type-stripe" style="background:${tc(card)}"></div>
-        <div class="cbt-card-emoji">${em(card.name)}</div>
+        <img src="${cardImgFight(card.name)}" alt="${card.name}"
+                style="width:100%;flex:1;object-fit:contain;border-radius:6px;min-height:0"
+                onerror="this.src='${cardImgFull(card.name)}';this.onerror=null">
         <div class="cbt-card-name">${card.name}</div>
         <div class="cbt-hp-wrap">
             <div class="cbt-hp-bar"><div class="cbt-hp-fill ${hpClass(card.currentHp, card.hp)}" style="width:${pct}%"></div></div>
@@ -695,31 +762,94 @@ function bigCard(card, isActive) {
     </div>`;
 }
 
+// Petite carte sur le banc (image sans texte)
 function benchCard(card) {
     if (!card) return '';
-    const ko = card.currentHp <= 0;
+    const ko  = card.currentHp <= 0;
     const pct = Math.max(0, (card.currentHp / card.hp) * 100);
     return `<div class="cbt-bench-card ${ko ? 'ko-card' : ''}">
         <div class="cbt-card-type-stripe" style="background:${tc(card)}"></div>
-        <div class="cbt-card-emoji">${em(card.name)}</div>
+        <img src="${cardImgFight(card.name)}" alt="${card.name}"
+                style="width:100%;flex:1;object-fit:contain;min-height:0"
+                onerror="this.src='${cardImgFull(card.name)}';this.onerror=null">
         <div class="cbt-card-name">${card.name}</div>
         <div class="cbt-hp-wrap">
             <div class="cbt-hp-bar"><div class="cbt-hp-fill ${hpClass(card.currentHp, card.hp)}" style="width:${pct}%"></div></div>
-            <div class="cbt-hp-txt">${card.currentHp}/${card.hp}</div>
         </div>
     </div>`;
 }
 
+// ─── TURN SUMMARY POPUP ─────────────────────────────────────────────────────
+function showTurnSummary(logs, callback) {
+    turnLocked = true;
+
+    let overlay = document.getElementById('turn-summary-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'turn-summary-overlay';
+        overlay.style.cssText = `
+            position: fixed; inset: 0; z-index: 350;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.55);
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    const logHtml = logs.map(l =>
+        `<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08);line-height:1.5">${l}</div>`
+    ).join('');
+
+    overlay.innerHTML = `
+        <div style="
+            width: 82%; max-width: 320px;
+            background: linear-gradient(180deg, #1a237e, #0d1545);
+            border: 2px solid rgba(255,255,255,.18);
+            border-radius: 16px;
+            padding: 20px 18px;
+            box-shadow: 0 12px 40px rgba(0,0,0,.7);
+        ">
+            <div style="font-family:'Lilita One',cursive;font-size:1.1em;color:#f5c518;margin-bottom:12px;text-align:center">
+                ⚔️ Résultat du tour
+            </div>
+            <div style="font-size:.84em;color:rgba(255,255,255,.85);font-weight:700;max-height:180px;overflow-y:auto">
+                ${logHtml}
+            </div>
+            <button id="turn-summary-btn" style="
+                margin-top:16px; width:100%; padding:12px;
+                background:linear-gradient(180deg,#f5c518,#d4860a);
+                color:#1a1130; font-family:'Lilita One',cursive;
+                font-size:1em; border:none; border-radius:9px;
+                box-shadow:0 4px 0 #7a4d00; cursor:pointer;
+            ">Continuer →</button>
+        </div>
+    `;
+    overlay.style.display = 'flex';
+
+    // Ferme automatiquement si match_end arrive pendant le popup
+    const closeOverlay = () => {
+        overlay.style.display = 'none';
+        turnLocked = false;
+    };
+    socket.once('match_end', closeOverlay);
+
+    document.getElementById('turn-summary-btn').onclick = () => {
+        socket.off('match_end', closeOverlay);
+        closeOverlay();
+        callback();
+    };
+}
+
+// ─── UPDATE BOARD ───────────────────────────────────────────────────────────
 function updateBoard(state) {
     const pts = n => '🔴'.repeat(Math.max(0, n)) + '⚪'.repeat(Math.max(0, 3 - n));
-    document.getElementById('player-pts').innerText = pts(state.myPoints);
-    document.getElementById('enemy-pts').innerText = pts(state.enemyPoints);
+    document.getElementById('player-pts').innerText   = pts(state.myPoints);
+    document.getElementById('enemy-pts').innerText    = pts(state.enemyPoints);
     document.getElementById('enemy-active').innerHTML = bigCard(state.enemyCards[state.enemyActiveIndex], true);
-    document.getElementById('enemy-bench').innerHTML = state.enemyCards.map((c, i) => i !== state.enemyActiveIndex ? benchCard(c) : '').join('');
+    document.getElementById('enemy-bench').innerHTML  = state.enemyCards.map((c, i) => i !== state.enemyActiveIndex ? benchCard(c) : '').join('');
     document.getElementById('player-active').innerHTML = bigCard(state.myCards[state.myActiveIndex], true);
-    document.getElementById('player-bench').innerHTML = state.myCards.map((c, i) => i !== state.myActiveIndex ? benchCard(c) : '').join('');
+    document.getElementById('player-bench').innerHTML  = state.myCards.map((c, i) => i !== state.myActiveIndex ? benchCard(c) : '').join('');
 
-    const acts = document.getElementById('cbt-actions');
+    const acts     = document.getElementById('cbt-actions');
     const myActive = state.myCards[state.myActiveIndex];
     if (myActive && myActive.currentHp > 0) {
         acts.style.display = 'grid';
@@ -730,32 +860,46 @@ function updateBoard(state) {
             </button>`).join('');
         acts.querySelectorAll('.cbt-atk-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (turnLocked) return;
                 socket.emit('play_turn', { moveIndex: btn.dataset.move });
                 acts.style.display = 'none';
                 document.getElementById('cbt-log').innerHTML = '⏳ En attente...';
             });
         });
-    } else acts.style.display = 'none';
+    } else {
+        acts.style.display = 'none';
+    }
 }
 
 // ─── END MODAL ──────────────────────────────────────────────────────────────
 function showEndModal(data) {
-    const me = localStorage.getItem('username');
-    const win = data.winner === me;
-    const xp = data.xpStats?.[me];
+    // Ferme le turn summary s'il est encore ouvert
+    const overlay = document.getElementById('turn-summary-overlay');
+    if (overlay) { overlay.style.display = 'none'; turnLocked = false; }
+
+    const me          = localStorage.getItem('username');
+    const win         = data.winner === me;
+    const xp          = data.xpStats?.[me];
     const coinsGained = data.xpStats?.[me]?.coinGain;
 
     document.getElementById('end-emoji').innerText = win ? '🏆' : '💀';
     const t = document.getElementById('end-title');
-    t.innerText = win ? 'VICTOIRE !' : 'DÉFAITE';
-    t.style.color = win ? '#f5c518' : '#e53935';
+    t.innerText    = win ? 'VICTOIRE !' : 'DÉFAITE';
+    t.style.color  = win ? '#f5c518'    : '#e53935';
     document.getElementById('end-reason').innerText = data.reason || '';
 
     let html = '';
     if (xp) html += `<div class="reward-xp">+${xp.xpGain} XP${xp.leveledUp ? `<br>🎉 NIVEAU ${xp.newLevel} !` : ''}</div>`;
     if (coinsGained) html += `<div class="reward-coins">+${coinsGained} 🪙 pièces</div>`;
     if (win && data.boosterReward) {
-        html += `<div class="reward-booster"><div class="rb-label">🎴 Booster gagné !</div><div class="rb-name">${em(data.boosterReward.name)} ${data.boosterReward.name}</div><div class="rb-hint">Quiz dans ta collection</div></div>`;
+        html += `<div class="reward-booster">
+            <div class="rb-label">🎴 Booster gagné !</div>
+            <img src="${cardImgFull(data.boosterReward.name)}" alt="${data.boosterReward.name}"
+                    style="width:60px;height:84px;object-fit:contain;border-radius:7px;margin:6px auto;display:block"
+                    onerror="this.style.opacity='.3'">
+            <div class="rb-name">${data.boosterReward.name}</div>
+            <div class="rb-hint">Quiz dans ta collection</div>
+        </div>`;
     }
     document.getElementById('end-rewards').innerHTML = html;
     document.getElementById('combat-screen').style.display = 'none';
@@ -771,9 +915,9 @@ document.getElementById('end-close').addEventListener('click', () => {
 
 // ─── BATTLE BUTTONS ─────────────────────────────────────────────────────────
 document.getElementById('battle-btn').addEventListener('click', () => {
-    if (playerLevel < 2) return showToast('🔒 Niveau 2 requis !', 'error');
-    if (!socket) return showToast('Connexion impossible', 'error');
-    if (myDeck.length < 3) return showToast('3 cartes requises !', 'error');
+    if (playerLevel < 2)      return showToast('🔒 Niveau 2 requis !', 'error');
+    if (!socket)              return showToast('Connexion impossible', 'error');
+    if (myDeck.length < 3)   return showToast('3 cartes requises !', 'error');
     document.getElementById('mm-overlay').style.display = 'flex';
     document.getElementById('mm-status').innerText = "Recherche d'un adversaire...";
     socket.emit('find_match');

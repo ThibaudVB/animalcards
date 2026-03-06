@@ -154,10 +154,11 @@
     "unlockedCards": [
       1,
       8,
-      18
+      18,
+      11
     ],
     "pendingCards": [
-      11
+      15
     ],
     "friends": [],
     "friendRequests": [],
@@ -166,12 +167,12 @@
       8,
       18
     ],
-    "level": 2,
-    "xp": 140,
-    "coins": 270,
+    "level": 4,
+    "xp": 180,
+    "coins": 1140,
     "stats": {
-      "wins": 1,
-      "losses": 0
+      "wins": 7,
+      "losses": 5
     },
     "chestSlots": [
       {
@@ -184,20 +185,35 @@
         }
       },
       {
-        "unlocked": false,
-        "card": null
+        "unlocked": true,
+        "card": {
+          "id": 17,
+          "name": "Rhinocéros Noir",
+          "rarity": "épique",
+          "type": "Mammifère"
+        }
       },
       {
-        "unlocked": false,
-        "card": null
+        "unlocked": true,
+        "card": {
+          "id": 2,
+          "name": "Requin-marteau",
+          "rarity": "rare",
+          "type": "Poisson"
+        }
       },
       {
-        "unlocked": false,
-        "card": null
+        "unlocked": true,
+        "card": {
+          "id": 22,
+          "name": "Ours polaire",
+          "rarity": "épique",
+          "type": "Mammifère"
+        }
       }
     ],
     "freeBoostersLeft": 0,
-    "boostersBoughtWithWins": 0,
+    "boostersBoughtWithWins": 1,
     "createdAt": "2026-03-05T13:45:07.925Z"
   },
   {
@@ -219,12 +235,156 @@
       5,
       16
     ],
-    "level": 2,
-    "xp": 70,
-    "coins": 180,
+    "level": 3,
+    "xp": 290,
+    "coins": 960,
+    "stats": {
+      "wins": 5,
+      "losses": 7
+    },
+    "chestSlots": [
+      {
+        "unlocked": true,
+        "card": {
+          "id": 17,
+          "name": "Rhinocéros Noir",
+          "rarity": "épique",
+          "type": "Mammifère"
+        }
+      },
+      {
+        "unlocked": true,
+        "card": {
+          "id": 10,
+          "name": "Loup Arctique",
+          "rarity": "rare",
+          "type": "Mammifère"
+        }
+      },
+      {
+        "unlocked": true,
+        "card": {
+          "id": 34,
+          "name": "Tigre de Sumatra",
+          "rarity": "épique",
+          "type": "Mammifère"
+        }
+      },
+      {
+        "unlocked": true,
+        "card": {
+          "id": 28,
+          "name": "Pin de Wollemi",
+          "rarity": "épique",
+          "type": "Végétal"
+        }
+      }
+    ],
+    "freeBoostersLeft": 0,
+    "boostersBoughtWithWins": 0,
+    "createdAt": "2026-03-05T14:50:25.888Z"
+  },
+  {
+    "id": "5c0852c8-c10e-40f2-a286-9f89493a8af0",
+    "username": "test1",
+    "password": "ce3418f83b8ee0196abb2adfaa4b3bed:d034c06c62921e03c22d0e3a457781445b8455e804a50881e6454830f16c3ff81fe9baa1006c6b81f4d03fb89ac1c1ef082b3806cb95705574b616e591ee8ff3",
+    "unlockedCards": [
+      1
+    ],
+    "pendingCards": [],
+    "friends": [],
+    "friendRequests": [],
+    "deck": [],
+    "level": 1,
+    "xp": 0,
+    "coins": 150,
     "stats": {
       "wins": 0,
-      "losses": 1
+      "losses": 0
+    },
+    "chestSlots": [
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "freeBoostersLeft": 3,
+    "boostersBoughtWithWins": 0,
+    "createdAt": "2026-03-06T11:47:22.771Z"
+  },
+  {
+    "id": "3e2fbfd5-d128-40f0-862c-70bc002ecf10",
+    "username": "test4",
+    "password": "62247b645a207d74707d70afd84dc9b6:fce07244e907d7c41d889ba49d5f4f9aa5f9639f6982e12c25d461fd61029b3a04ba96a1e25131a168442d74106fdf6e4b1097b5afd798471110526502e96dfe",
+    "unlockedCards": [
+      1
+    ],
+    "pendingCards": [],
+    "friends": [],
+    "friendRequests": [],
+    "deck": [],
+    "level": 1,
+    "xp": 0,
+    "coins": 150,
+    "stats": {
+      "wins": 0,
+      "losses": 0
+    },
+    "chestSlots": [
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      },
+      {
+        "unlocked": false,
+        "card": null
+      }
+    ],
+    "freeBoostersLeft": 3,
+    "boostersBoughtWithWins": 0,
+    "createdAt": "2026-03-06T13:01:36.982Z"
+  },
+  {
+    "id": "66224fb4-13eb-4159-a935-59b7474194f4",
+    "username": "amelie",
+    "password": "45438fd4bdaeeb8d637c2a8c26143c7a:b98a8ef1cd4ebdde3238f10f11617b5b7c6394eb322db9635b42eee78d9b04b6009edcc75ffa1fd7fee78dad6dbccfefd1a29acb145fdd01e6d68352eef059de",
+    "unlockedCards": [
+      1
+    ],
+    "pendingCards": [
+      27,
+      22,
+      32
+    ],
+    "friends": [],
+    "friendRequests": [],
+    "deck": [],
+    "level": 1,
+    "xp": 0,
+    "coins": 150,
+    "stats": {
+      "wins": 0,
+      "losses": 0
     },
     "chestSlots": [
       {
@@ -246,6 +406,6 @@
     ],
     "freeBoostersLeft": 0,
     "boostersBoughtWithWins": 0,
-    "createdAt": "2026-03-05T14:50:25.888Z"
+    "createdAt": "2026-03-06T13:22:34.376Z"
   }
 ]
